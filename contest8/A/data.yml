@@ -1,0 +1,19 @@
+subtasks:
+  - score: 8
+    type: min
+    cases: ['sub-1drome0','sub-1drome1','sub-1drome2','sub-1drome3','sub-1drome4','sub-1drome5','sub-1drome6','sub-1drome7','sub-1drome8','sub-1drome9']
+  - score: 15
+    type: min
+    cases: ['sub-2drome0','sub-2drome1','sub-2drome2','sub-2drome3','sub-2drome4','sub-2drome5','sub-2drome6','sub-2drome7','sub-2drome8','sub-2drome9']
+  - score: 24
+    type: min
+    cases: ['sub-3drome0','sub-3drome1','sub-3drome2','sub-3drome3','sub-3drome4','sub-3drome5','sub-3drome6','sub-3drome7','sub-3drome8','sub-3drome9']
+  - score: 26
+    type: min
+    cases: ['sub-4drome0','sub-4drome1','sub-4drome2','sub-4drome3','sub-4drome4','sub-4drome5','sub-4drome6','sub-4drome7','sub-4drome8','sub-4drome9']
+  - score: 27
+    type: min
+    cases: ['sub-5drome0','sub-5drome1','sub-5drome2','sub-5drome3','sub-5drome4','sub-5drome5','sub-5drome6','sub-5drome7','sub-5drome8','sub-5drome9']
+
+inputFile: '#.in'
+outputFile: '#.out'
