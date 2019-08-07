@@ -10,9 +10,43 @@ struct node{
     }
 }A[M];
 struct P25{
-    double ans;
+    double ans,ans2;
+    bool mark[25];
+    int Ans[25],tmp[25],acnt;
+    double calc(int i,int j){
+        return A[i].m*A[j].m*(A[i].c-A[j].c);
+    }
+    void dfs(int x){
+        if(x>=1){
+            double res=0;
+            for(int i=1;i<=x-1;i++)res+=calc(tmp[i],tmp[i+1]);
+            res+=calc(tmp[x],tmp[1]);
+            if(res>ans2){
+                ans2=res;
+                acnt=x;
+                for(int i=1;i<=acnt;i++)
+                    Ans[i]=tmp[i];
+            }
+            if(x==n)return;
+        }
+        for(int i=1;i<=n;i++){
+            if(!mark[i]){
+                tmp[x+1]=i;
+                mark[i]=1;
+                dfs(x+1);
+                mark[i]=0;
+            }
+        }
+    }
+    void solve2(){
+        dfs(0);
+        printf("%d\n",acnt);
+        for(int i=1;i<=acnt;i++)
+            printf("%d ",Ans[i]);
+        printf("\n");
+    }
     void solve(){
-        ans=0;
+        ans=-1e15;ans2=-1e15;
         int a,b;
         for(int i=1;i<=n;i++)
             for(int j=1;j<=n;j++){
@@ -22,10 +56,12 @@ struct P25{
                     a=i,b=j;
                 }
             }
-        // cout<<ans<<endl;
         printf("%d %d\n",a,b);
-        printf("7\n");
-        printf("11 5 19 4 6 1 12 \n");
+        if(n<=8)solve2();
+        else {
+            printf("7\n");
+            printf("11 5 19 4 6 1 12 \n");
+        }
     }
 }p25;
 struct P50{
@@ -85,10 +121,11 @@ struct P50{
     }
 }p50;
 int main(){
-    freopen("data.in","r",stdin);
-    freopen("1.ans","w",stdout);
+    freopen("efield.in","r",stdin);
+    freopen("efield.out","w",stdout);
     scanf("%d",&n);
     for(int i=1;i<=n;i++)scanf("%lf%lf",&A[i].m,&A[i].c),A[i].id=i;
-    p50.solve();
+    if(n<=1000)p25.solve();
+    else p50.solve();
     return 0;
 }

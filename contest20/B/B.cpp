@@ -162,7 +162,6 @@ struct P100{
         if(mm<mi)mi=mm,rt=x;
     }
     bool dfs(int x,int fa,LL ds,int dep,bool f){
-        // cout<<x<<endl;
         if(dep>U)return 0;
         if(!f){
             if(Tr.query(max(0,L-dep),U-dep,1)<=ds-mid*dep)return 1;
@@ -218,7 +217,6 @@ struct P100{
         LL ans=0;
         while(l<=r){
             mid=(l+r)>>1;
-            // cout<<1.0*mid/5000<<endl;
             if(check())l=mid+1,ans=mid;
             else r=mid-1;
         }

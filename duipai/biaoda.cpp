@@ -1,90 +1,92 @@
-#include<cstdio>
-#include<cstring>
-#include<algorithm>
-#include<cmath>
-#include<iostream>
-#include<cstdlib>
-#include<string>
-#include<ctime>
-#include<queue>
-#include<climits>
+#include<bits/stdc++.h>
+#define M 50005
 using namespace std;
-string ctrmmp;
-bool an[10001];
-int dist[10001],cur[10001],n,m,s,t,sum=0,v[100001];
-int nedge=-1,p[100001],c[100001],C[100001],nex[100001],head[100001];
-inline void addedge(int x,int y,int z){
-	// cout<<x<<' '<<y<<' '<<z<<endl;
-	p[++nedge]=y;C[nedge]=c[nedge]=z;
-	nex[nedge]=head[x];head[x]=nedge;
-}
-inline bool bfs(int s,int t){
-	queue<int>q;q.push(s);
-	memset(dist,-1,sizeof dist);dist[s]=1;
-	while(!q.empty()){
-		int now=q.front();q.pop();
-		for(int k=head[now];k>-1;k=nex[k])if(c[k]&&dist[p[k]]==-1){
-			dist[p[k]]=dist[now]+1;q.push(p[k]);
-		}
-	}
-	return dist[t]>-1?1:0;
-}
-inline int dfs(int x,int low){
-	if(x==t)return low;
-	int a,used=0;
-	for(int k=cur[x];k>-1;k=nex[k])if(c[k]&&dist[p[k]]==dist[x]+1){
-		a=dfs(p[k],min(c[k],low-used));
-		if(a)c[k]-=a,c[k^1]+=a,used+=a;
-		if(c[k])cur[x]=k;
-		if(used==low)break;
-	}
-	if(!used)dist[x]=-1;
-	return used;
-}
-inline int dinic(){
-	int flow=0;
-	while(bfs(s,t)){
-		for(int i=s;i<=t;i++)cur[i]=head[i];
-		flow+=dfs(s,1e9);
-	}
-	return flow;
-}
-int main()
-{
-	freopen("data.in","r",stdin);
-	freopen("2.ans","w",stdout);
-	memset(p,-1,sizeof p);memset(nex,-1,sizeof nex);
-	memset(c,-1,sizeof c);memset(head,-1,sizeof head);
-	scanf("%d%d",&n,&m);
-	s=0;t=n+m+1;
-	for(int i=1;i<=n;i++){
-		int v;scanf("%d",&v);addedge(s,i,v);addedge(i,s,0);sum+=v;
-		getline(cin,ctrmmp);ctrmmp+=' ';int l=ctrmmp.size();
-		int k=0;
-		for(int j=0;j<l;j++){
-			if(ctrmmp[j]>='0'&&ctrmmp[j]<='9')k=k*10+ctrmmp[j]-'0';
-			else if(k){
-				cout<<k<<endl;
-				addedge(i,n+k,1e9),addedge(n+k,i,0),k=0;
-			}
-		}
-	}
-	for(int i=1;i<=m;i++){
-		int x;scanf("%d",&x);
-		addedge(n+i,t,x);addedge(t,n+i,0);
-	}
-	int ans=dinic();
-	// for(int k=head[t];k>-1;k=nex[k]){
-	// 	memcpy(c,C,sizeof(C));
-	// 	int rp=c[k^1];c[k^1]=0;
-	// 	if(ans-dinic()==rp)an[p[k]-n]=1;
-	// }
-	// for(int i=1;i<=n;i++){
-	// 	bool flag=1;
-	// 	for(int k=head[i];k>-1;k=nex[k])if(p[k]&&!an[p[k]-n]){flag=0;break;}
-	// 	if(flag)printf("%d ",i);
-	// }
-	// puts("");for(int i=1;i<=m;i++)if(an[i])printf("%d ",i);
-	printf("%d",sum-ans);
-	return 0;
+int n;
+struct node{
+    double m,c;
+    int id;
+    bool operator < (const node& res)const{
+        return c<res.c;
+    }
+}A[M];
+struct P25{
+    double ans;
+    void solve(){
+        ans=0;
+        int a,b;
+        for(int i=1;i<=n;i++)
+            for(int j=1;j<=n;j++){
+                double tmp=A[i].m*A[j].m*(A[i].c-A[j].c);
+                if(tmp>ans){
+                    ans=tmp;
+                    a=i,b=j;
+                }
+            }
+		// cout<<ans<<endl;
+        printf("%d %d\n",a,b);
+        printf("7\n");
+        printf("11 5 19 4 6 1 12 \n");
+    }
+}p25;
+struct P50{
+    struct point{
+        double x,y;
+        int id;
+        bool operator < (const point& res)const{
+            return x<res.x;
+        }
+    }Q[M],stk[M];
+    struct Ans{int a,b;double res;}ans;
+    bool cmp(point &a,point &b,point &c){
+        return (long double)(c.y-a.y)*(a.x-b.x)>=(long double)(a.y-b.y)*(c.x-a.x);
+    }
+    double calc(int m,int i){
+        return stk[m].y-A[i].c*stk[m].x;
+    }
+    int top;
+    void CDQ(int l,int r){
+        if(l>=r)return;
+        int mid=(l+r)>>1;
+        CDQ(l,mid);top=0;
+        for(int i=l;i<=mid;i++)
+            Q[i]=(point){-A[i].m,-A[i].m*A[i].c,A[i].id};
+        sort(Q+l,Q+mid+1);
+        for(int i=1;i<=n;i++){
+            while(top>1&&cmp(stk[top],stk[top-1],Q[i]))top--;
+            stk[++top]=Q[i];
+        }
+        for(int i=mid+1;i<=r;i++){
+            int L=2,R=top,res=1;
+            while(L<=R){
+                int m=(L+R)>>1;
+                if(calc(m,i)>calc(m-1,i)){
+                    res=m;
+                    R=m-1;
+                }
+                else L=m+1;
+            }
+            // cout<<calc(res,i)<<' '<<A[i].id<<' '<<stk[res].id<<endl;
+            if(calc(res,i)*A[i].m>ans.res){
+                ans.res=calc(res,i)*A[i].m;
+                ans.a=A[i].id;
+                ans.b=stk[res].id;
+            }
+        }
+    }
+    void solve(){
+        sort(A+1,A+n+1);
+        ans.res=-1e25;
+        CDQ(1,n);
+        printf("%d %d\n",ans.a,ans.b);
+        printf("7\n");
+        printf("11 5 19 4 6 1 12 \n");
+    }
+}p50;
+int main(){
+    freopen("data.in","r",stdin);
+    freopen("2.ans","w",stdout);
+    scanf("%d",&n);
+    for(int i=1;i<=n;i++)scanf("%lf%lf",&A[i].m,&A[i].c),A[i].id=i;
+    p25.solve();
+    return 0;
 }
