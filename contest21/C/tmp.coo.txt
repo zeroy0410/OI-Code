@@ -110,8 +110,8 @@ Mat Pow(int s){
 }
 bool mem2;
 int main(){
-	// freopen("bus.in","r",stdin);
-	// freopen("bus.out","w",stdout);
+	freopen("bus.in","r",stdin);
+	freopen("bus.out","w",stdout);
 	srand(time(NULL));
 	read3(n,K,P);P--;
 	FOR(i,0,(1<<P)-1){

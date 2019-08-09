@@ -1,32 +1,26 @@
-#include<bits/stdc++.h>
-#define M 75
-using namespace std;
-const int inf=1e9;
-int n,A[M],h[M],tt=1;
-struct edge{
-    int nxt,to,co;
-}G[M*M*2];
-void Add(int a,int b,int c){
-    G[++tt]=(edge){h[a],b,c};
-    h[a]=tt;
-}
-bool vis[M];
-int dep[M],d
-queue<int>Q;
-bool SPFA(){
-    for(int i=0;i<=n;i++)vis[i]=0,dis[i]=inf,Q.push(s);
-    while(!Q.empty()){
-        int x=Q.front();Q.pop();vis[x]=0;
-        for(int i=h[x];i;i=G[i].nxt){
-            int u=G[i].to,c=G[i].co;
-            if(dis[u]>dis[x]+c&&dis
+#include<cstdio>
+#include<cmath>
+#define FOR(i,l,r) for(int i=(l),i##R=(r);i<=i##R;i++)
+const int N=55;
+int n;
+int stk[N][N],top[N],num,ct;
+bool check(int x,int y){
+	int sum=x+y,p=sqrt(sum);
+	return p*p==sum;
 }
 int main(){
-    scanf("%d",&n);
-    for(int i=1;i<=n;i++)
-        scanf("%d",&A[i]);
-    do{
-
-    }while(Dinic())
-    return 0;
+	scanf("%d",&n);
+	while(1){
+		ct++;
+		int ok=0;
+		FOR(i,1,num)
+			if(check(stk[i][top[i]],ct)){stk[i][++top[i]]=ct;ok=1;break;}
+		if(!ok){
+			if(num<n)num++,stk[num][top[num]=1]=ct;
+			else break;
+		}
+	}
+	printf("%d\n",ct-1);
+	FOR(i,1,num)FOR(j,1,top[i])printf("%d%c",stk[i][j],j==top[i]?'\n':' ');
+	return 0;
 }

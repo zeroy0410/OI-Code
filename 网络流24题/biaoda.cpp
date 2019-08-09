@@ -1,43 +1,112 @@
-#include<bits/stdc++.h>
+#include<iostream>
+#include<cstdio>
+#include<cstring>
+#include<algorithm>
+#include<cmath>
 using namespace std;
-#define M 105
-int tot,s,e,n,m,i,j,a,a1[M],a2[M],t1,t2,h[M],H[M],nx[M*M],v[M*M],t[M*M],l,r,Q[M],dep[M],sum,res;
-bool f;
-char c[205];
-void add(int x,int y,int z) {
-	t[++tot]=y,nx[tot]=h[x],h[x]=tot,v[tot]=z;
+const int N=1005,M=1e6,INF=1e9;
+int read(){
+    char c=getchar();int x=0,f=1;
+    while(c<'0'||c>'9'){if(c=='-')f=-1; c=getchar();}
+    while(c>='0'&&c<='9'){x=x*10+c-'0'; c=getchar();}
+    return x*f;
 }
-int bfs() {
-	for(int i=1; i<=e; i++)dep[i]=0;
-	l=0,Q[r=1]=s,dep[s]=1;
-	while(l<r) {
-		a=Q[++l];
-		for(int i=H[a]=h[a]; i; i=nx[i])
-			if(!dep[t[i]]&&v[i])dep[t[i]]=dep[a]+1,Q[++r]=t[i];
-	}
-	return dep[e];
+int n,a[N],f[N],g[N],s,t,l;
+void dp(){
+    for(int i=1;i<=n;i++) g[i]=INF;
+    for(int i=1;i<=n;i++){
+        int k=upper_bound(g+1,g+1+n,a[i])-g;
+        f[i]=k;
+        g[k]=a[i];
+        l=max(l,f[i]);
+    }
 }
-int dfs(int x,int y) {
-	if(x==e)return y;
-	int ans=0,f;
-	for(int i=H[x]; ans<y&&i; i=nx[i])
-		if(dep[t[i]]==dep[x]+1&&v[i])
-			H[x]=i,f=dfs(t[i],min(v[i],y-ans)),v[i]-=f,v[i^1]+=f,ans+=f;
-	return ans;
+struct edge{
+    int v,ne,c,f;
+}e[M<<1];
+int cnt,h[N];
+inline void ins(int u,int v,int c){
+    cnt++;
+    e[cnt].v=v;e[cnt].c=c;e[cnt].f=0;e[cnt].ne=h[u];h[u]=cnt;
+    cnt++;
+    e[cnt].v=u;e[cnt].c=0;e[cnt].f=0;e[cnt].ne=h[v];h[v]=cnt;
 }
-int main() {
-	tot=1,scanf("%d%d",&m,&n),s=n+m+1,e=n+m+2;
-	for(i=1; i<=m; i++) {
-		scanf("%d",&a),add(s,i,a),add(i,s,0),sum+=a;
-		while(getchar()==' ')scanf("%d",&a),add(i,a+m,1e9),add(a+m,i,0);
-	}
-	for(i=1; i<=n; i++)scanf("%d",&a),add(m+i,e,a),add(e,m+i,0);
-	while(bfs())res+=dfs(s,1e9);
-	for(i=1; i<=m; i++)if(dep[i])a1[++t1]=i;
-	for(i=1; i<=n; i++)if(dep[i+m])a2[++t2]=i;
-	for(i=1; i<t1; i++) printf("%d ",a1[i]);
-	printf("%d\n",a1[t1]);
-	for(i=1; i<t2; i++) printf("%d ",a2[i]);
-	printf("%d\n%d\n",a2[t2],sum-res);
-	return 0;
+void build(){
+    cnt=0;
+    memset(h,0,sizeof(h));
+    for(int i=1;i<=n;i++){
+        if(f[i]==1) ins(s,i,1);
+        ins(i,i+n,1);
+        if(f[i]==l) ins(i+n,t,1);
+        for(int j=1;j<i;j++) if(a[j]<=a[i]&&f[j]+1==f[i]) ins(j+n,i,1);
+    }
+}
+void build2(){
+    cnt=0;
+    memset(h,0,sizeof(h));
+    for(int i=1;i<=n;i++){
+        if(i==1||i==n){
+            if(f[i]==1) ins(s,i,INF);
+            ins(i,i+n,INF);
+            if(f[i]==l) ins(i+n,t,INF);
+        }else{
+            if(f[i]==1) ins(s,i,1);
+            ins(i,i+n,1);
+            if(f[i]==l) ins(i+n,t,1);
+        }
+        for(int j=1;j<i;j++) if(a[j]<=a[i]&&f[j]+1==f[i]) ins(j+n,i,1);
+    }
+}
+int vis[N],d[N],q[N],head=1,tail=1;
+bool bfs(){
+    memset(vis,0,sizeof(vis));
+    memset(d,0,sizeof(d));
+    head=tail=1;
+    q[tail++]=s;d[s]=0;vis[s]=1;
+    while(head!=tail){
+        int u=q[head++];
+        for(int i=h[u];i;i=e[i].ne){
+            int v=e[i].v;
+            if(!vis[v]&&e[i].c>e[i].f){
+                vis[v]=1;d[v]=d[u]+1;
+                q[tail++]=v;
+                if(v==t) return 1;
+            }
+        }
+    }
+    return 0;
+}
+int cur[N];
+int dfs(int u,int a){
+    if(u==t||a==0) return a;
+    int flow=0,f;
+    for(int &i=cur[u];i;i=e[i].ne){
+        int v=e[i].v;
+        if(d[v]==d[u]+1&&(f=dfs(v,min(a,e[i].c-e[i].f)))>0){
+            flow+=f;
+            e[i].f+=f;
+            e[((i-1)^1)+1].f-=f;
+            a-=f;
+            if(a==0) break;
+        }
+    }
+    return flow;
+}
+int dinic(){
+    int flow=0;
+    while(bfs()){//cout<<"p";
+        for(int i=s;i<=t;i++) cur[i]=h[i];
+        flow+=dfs(s,INF);
+    }
+    return flow;
+}
+int main(){
+    n=read();s=1;t=n+n+1;
+    for(int i=1;i<=n;i++) a[i]=read();
+    dp();printf("%d\n",l);
+    if(l==1) {printf("%d\n%d",n,n);return 0;}
+    build();
+    printf("%d\n",dinic());
+    build2();
+    printf("%d",dinic());
 }
