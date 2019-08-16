@@ -1,89 +1,73 @@
 #include<bits/stdc++.h>
 using namespace std;
-const int sm = 1200;
-const int sn = 3660;
-const int Inf = 0x3f3f3f3f;
-int M,N,tot=1,Ct,Ans,Sum,S,T;
-int to[sn],nxt[sn],hd[sm];
-int _c[sn],c[sn],f[sn];
-int vis[sm],cst[sm],pre[sm];
-int Min(int x,int y) { return x<y?x:y;}
-void Add(int u,int v,int x,int y) {
-	to[++tot]=v,nxt[tot]=hd[u],hd[u]=tot;
-	f[tot]=x,_c[tot]=c[tot]=y;
-	to[++tot]=u,nxt[tot]=hd[v],hd[v]=tot;
-	f[tot]=-x,_c[tot]=c[tot]=0;
+const int M=1005,inf=2e9;
+int n,m;
+int h[M],nx[M*10],to[M*10],v[M*10],tot=1;
+void add(int a,int b,int c){
+	to[++tot]=b;v[tot]=c;
+	nx[tot]=h[a];h[a]=tot;
 }
-void SPFA() {
-	Ans=0; int df;
-	while(true) {
-		for(int i=1;i<=T;++i) 
-			cst[i]=-Inf,vis[i]=pre[i]=0;
-		queue<int>q; int t;
-		q.push(S),vis[S]=1,cst[S]=0;
-		while(!q.empty()) {
-			t=q.front(),q.pop();
-			vis[t]=0;
-			for(int i=hd[t];i;i=nxt[i]) 
-				if(cst[to[i]]<cst[t]+f[i]&&c[i]>0) {
-					cst[to[i]]=cst[t]+f[i];
-					pre[to[i]]=i;
-					if(!vis[to[i]]) {
-						vis[to[i]]=1;
-						q.push(to[i]);
-					}
-				}
-		}
-		if(cst[T]==-Inf) break;
-		df=Inf;
-		for(int i=T;i!=S;i=to[pre[i]^1])
-			df=Min(df,c[pre[i]]);
-		for(int i=T;i!=S;i=to[pre[i]^1])
-			c[pre[i]]-=df,c[pre[i]^1]+=df;
-		Ans+=df*cst[T];
-	}
-	printf("%d\n",Ans);
+void adds(int a,int b,int c){
+	add(a,b,c);add(b,a,0);
 }
-
-int main() {
-	int v,A;
-	scanf("%d%d",&M,&N);
-	Sum=M*N+(((N-1)*N)>>1);
-	S=Sum<<1|1,T=S+1;
-	for(int i=1;i<=N;++i)
-		for(int j=1;j<=M+i-1;++j) {
-			scanf("%d",&v); ++Ct;
-			Add(Ct,Ct+Sum,v,1);
-			if(i==1) Add(S,Ct,0,1);
-			if(i==N) Add(Ct+Sum,T,0,1);
-			if(i!=N) {
-				A=M*i+(i*(i-1)>>1)+j;
-				Add(Ct+Sum,A,0,1);
-				if(j+1<=M+i) Add(Ct+Sum,++A,0,1);
+int dep[M],q[M];
+bool bfs(){
+	memset(dep,0,sizeof(dep));
+	int l=0,r=0;
+	dep[q[r++]=0]=1;
+	while(l<r){
+		int x=q[l++];
+		for(int i=h[x];i;i=nx[i]){
+			int y=to[i];
+			if(!dep[y]&&v[i]){
+				dep[y]=dep[x]+1;
+				if(y==n*m+1)return true;
+				q[r++]=y;
 			}
 		}
-	for(int cas=1;cas<=3;++cas) {
-		if(cas==1) SPFA();
-		if(cas==2) {
-			for(int i=1;i<=Sum;++i) {
-				for(int j=hd[i];j;j=nxt[j])
-					if(to[j]==i+Sum&&_c[j]==1) 
-						_c[j]=Inf;
-				for(int j=hd[i+Sum];j;j=nxt[j])
-					if(to[j]==T&&_c[j]==1) 
-						_c[j]=Inf;
-			}
-			memcpy(c,_c,sizeof(c));
-			SPFA();
-		}
-		if(cas==3) {
-			for(int i=1;i<=Sum;++i)
-				for(int j=hd[i+Sum];j;j=nxt[j])
-					if(to[j]!=S&&to[j]!=T&&to[j]!=i&&_c[j]==1)
-						_c[j]=Inf;
-			memcpy(c,_c,sizeof(c));
-			SPFA();
+	}
+	return false;
+}
+int cur[M];
+int dfs(int x,int fl){
+	if(x==n*m+1)return fl;
+	int res=0;
+	for(int i=cur[x];i;i=nx[i]){
+		int y=to[i],inc;
+		if(v[i]&&dep[y]==dep[x]+1&&(inc=dfs(y,min(fl,v[i])))){
+			v[i]-=inc;v[i^1]+=inc;
+			fl-=inc;res+=inc;
+			if(!fl)break;
 		}
 	}
+	return res;
+}
+int dinic(){
+	int ans=0;
+	while(bfs()){
+		memcpy(cur,h,sizeof(cur));
+		ans+=dfs(0,inf);
+	}
+	return ans;
+}
+int get(int x,int y){
+	return (x-1)*m+y;
+}
+int main(){
+	scanf("%d%d",&n,&m);
+	int sum=0;
+	for(int i=1;i<=n;i++)
+		for(int a,c=i&1,j=1;j<=m;j++,c=!c){
+			scanf("%d",&a),sum+=a;
+			if(!c){
+				int p=get(i,j);
+				adds(0,p,a);
+				if(i>1)adds(p,get(i-1,j),inf);
+				if(i<n)adds(p,get(i+1,j),inf);
+				if(j>1)adds(p,get(i,j-1),inf);
+				if(j<m)adds(p,get(i,j+1),inf);
+			}else adds(get(i,j),n*m+1,a);
+		}
+	printf("%d\n",sum-dinic());
 	return 0;
 }
