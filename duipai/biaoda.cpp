@@ -1,64 +1,103 @@
-#include<iostream>
-#include<cstdio>
-#include<cstdlib>
-#include<algorithm>
-#include<map>
-#include<queue>
-#include<cstring>
+#include<bits/stdc++.h>
+#define M 100005
+#define LL long long
 using namespace std;
-const int N=5e5+10;
-struct edge{int next,to,w,cost;}a[N];
-int n,k,rk[N],B[N],l[N],r[N],dis[N],vis[N];
-int pe[N],px[N],cnt=1,head[N],Ans,S,T,cc;
-map<int,int> Map;
-queue<int> Q;
-void link(int x,int y,int w,int cost)
-{
-	a[++cnt]=(edge){head[x],y,w, cost};head[x]=cnt;
-	a[++cnt]=(edge){head[y],x,0,-cost};head[y]=cnt;
-}
-int SPFA()
-{
-	memset(dis,-63,sizeof(dis));
-	Q.push(S);dis[S]=0;vis[S]=1;
-	while(!Q.empty())
-	{
-		int x=Q.front();
-		for(int i=head[x];i;i=a[i].next)
-		{
-			int R=a[i].to;
-			if(!a[i].w||dis[R]>=dis[x]+a[i].cost) continue;
-			dis[R]=dis[x]+a[i].cost;
-			pe[R]=i;px[R]=x;
-			if(!vis[R]) Q.push(R);
-		}
-		vis[x]=0;Q.pop();
-	}
-	return dis[T]!=dis[0];
-}
-int main()
-{
-    freopen("data.in","r",stdin);
-    freopen("2.ans","w",stdout);
-	cin>>n>>k;
-	for(int i=1;i<=n;i++)
-	{
-		cin>>l[i]>>r[i],B[++cc]=l[i],B[++cc]=r[i];
-		if(l[i]>r[i]) swap(l[i],r[i]);
-	}
-	sort(B+1,B+cc+1);
-	cc=unique(B+1,B+cc+1)-B-1;
-	for(int i=1;i<=cc;i++) rk[i]=B[i],Map[B[i]]=i;
-	for(int i=1;i<=n;i++) l[i]=Map[l[i]],r[i]=Map[r[i]];
-	for(int i=1;i<cc;i++) link(i,i+1,k,0);
-	for(int i=1;i<=n;i++) link(l[i],r[i],1,rk[r[i]]-rk[l[i]]);
-	S=cc+1;T=S+1;link(S,1,k,0);link(cc,T,k,0);
-	while(SPFA())
-	{
-		int flow=1e9;
-		for(int x=T;x!=S;x=px[x]) flow=min(flow,a[pe[x]].w);
-		for(int x=T;x!=S;x=px[x]) a[pe[x]].w-=flow,a[pe[x]^1].w+=flow;
-		Ans+=flow*dis[T];
-	}
-	cout<<Ans<<endl;
+int T;
+LL X;
+struct Pbl{
+    LL Q[M];
+    int qcnt;
+    LL Get(int s,int l){
+        LL res=0;
+        for(int i=0;i<l;i++){
+            if(s&1<<i)res=res*10+4;
+            else res=res*10+7;
+        }
+        return res;
+    }
+    void build(){
+        for(int l=2;l<=10;l+=2){
+            for(int i=0;i<1<<l;i++){
+                int c=0;
+                for(int j=0;j<l;j++){
+                    if(i&1<<j)c++;
+                }
+                if(c!=l/2)continue;
+                Q[++qcnt]=Get(i,l);
+            }
+        }
+    }
+    void solve(){
+        qcnt=0;build();
+        sort(Q+1,Q+qcnt+1);
+    }
+    LL calc(LL x){
+        int cur=lower_bound(Q+1,Q+qcnt+1,x)-Q;
+        return Q[cur];
+    }
+}pbl;
+struct P100{
+    int Q[35],qcnt,len,ans[35],tmp[35];
+    bool less(int c7,int c4,int w){
+        if(w>qcnt)return 0;
+        for(int i=1;i<=c7;i++)tmp[i]=7;
+        for(int i=c7+1;i<=c7+c4;i++)tmp[i]=4;
+        for(int i=1;i<=c7+c4;i++){
+            if(tmp[i]>Q[w+i-1])return 0;
+            if(tmp[i]<Q[w+i-1])return 1;
+        }
+        return 0;
+    }
+    void solve(LL x){
+        qcnt=0;
+        while(x){
+            Q[++qcnt]=x%10;
+            x/=10;
+        }
+        if(qcnt&1)Q[++qcnt]=0;
+        for(int i=1;i<=qcnt/2;i++)
+            swap(Q[i],Q[qcnt-i+1]);
+        if(less(qcnt/2,qcnt/2,1)){
+            len=qcnt+2;
+            for(int i=1;i<=len/2;i++)printf("4");
+            for(int i=1;i<=len/2;i++)printf("7");
+            puts("");
+            return;
+        }
+        int len=qcnt;
+        int l4=len/2,l7=len/2;
+        bool fl=0;
+        for(int i=1;i<=qcnt;i++){
+            if(fl){
+                if(l4){ans[i]=4;l4--;}
+                else ans[i]=7;
+                continue;
+            }
+            if(Q[i]<4){
+                if(l4){l4--;ans[i]=4;}
+                else {l7--;ans[i]=7;}
+                fl=1;
+            }
+            else if(Q[i]==4){
+                if(less(l7,l4-1,i+1)){l7--;ans[i]=7;fl=1;}
+                else {l4--;ans[i]=4;}
+            }
+            else if(Q[i]<7){l7--;ans[i]=7;fl=1;}
+            else {l7--;ans[i]=7;}
+        }
+        for(int i=1;i<=len;i++)
+            printf("%d",ans[i]);
+        puts("");
+    }
+}p100;
+int main(){
+    pbl.solve();
+    scanf("%d",&T);
+    while(T--){
+        scanf("%lld",&X);
+        // if(X<=(int)1e8){
+        printf("%lld\n",pbl.calc(X));
+        // }
+    }
+    return 0;
 }
