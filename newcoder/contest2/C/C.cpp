@@ -1,6 +1,7 @@
 #include<bits/stdc++.h>
 using namespace std;
 int n,op;
+
 int main(){
 	scanf("%d",&n);
 	while(n--){
@@ -9,6 +10,7 @@ int main(){
 			int x;
 			scanf("%d",&x);
 		}
+		
 	}
 	return 0;
 }
