@@ -10,6 +10,3 @@ echo WA
 exit 0
 fi 
 done 
- 
- 
- 

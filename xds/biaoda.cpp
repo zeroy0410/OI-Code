@@ -1,47 +1,79 @@
-#include<bits/stdc++.h>
+#include<cstdio>
+#include<cstring>
+#include<algorithm>
 using namespace std;
-#define maxn 100010
-#define M 100010
-#define LL long long
-const int mod=1e9+7;
-LL x[M],a[M];
-pair<LL,LL>q[M];
+#define LL rt<<1
+#define RR rt<<1|1
+#define lson l,m,LL
+#define rson m+1,r,RR
+const int maxn  =  44444;
+int col[maxn<<2],sum[maxn<<2];
+int lbd[maxn<<2],rbd[maxn<<2];
+struct node{
+    char op[5];
+    int l,r;
+}q[22222];
+int x[maxn];
+void pushup(int rt,int l,int r){
+    if(col[rt]){
+        sum[rt]=0;
+        lbd[rt]=rbd[rt]=1;
+        return;
+    }
+    if(l==r){
+        lbd[rt]=rbd[rt]=0;
+        sum[rt]=1;
+        return;
+    }
+    lbd[rt]=lbd[LL];
+    rbd[rt]=rbd[RR];
+    sum[rt]=sum[LL]+sum[RR]-(!rbd[LL]&&!lbd[RR]);
+}
+void build(int l,int r,int rt){
+    sum[rt]=1;
+    col[rt]=lbd[rt]=rbd[rt]=0;
+    if(l==r) return ;
+    int m=(l+r)>>1;
+    build(lson);
+    build(rson);
+}
+void update(int L,int R,int c,int l,int r,int rt){
+    if(L<=l&&r<=R) {
+        col[rt]+=c;
+        pushup(rt,l,r);
+        return ;
+    }
+    int m=(l+r)>>1;
+    if(L<=m) update(L,R,c,lson);
+    if(R>m) update(L,R,c,rson);
+    if(col[rt]) return;
+    pushup(rt,l,r);
+}
 int main(){
-	LL hp;
-	int n,h,t;
-	while(scanf("%d%lld",&n,&hp)==2){
-		h=t=0;
-		LL ans=0,cur=hp;
-		for(int i=1;i<=n;++i){
-			scanf("%lld%lld",x+i,a+i);
-			while(x[i]>=cur&&t>h){
-				LL res=q[h].first,rise=q[h].second;
-				LL u=(x[i]-cur)/rise+1;
-				if(u*rise<=res){
-					q[h].first-=u*rise;
-					if(q[h].first==0)++h;
-					ans+=u;cur+=u*rise;
-				}
-				else{
-					u=res/rise;ans+=u;
-					cur+=u*rise;u=res%rise;
-					++h;
-					if(h==t||u>=q[h].second){
-						++ans;cur+=u;
-					}
-					else{
-						q[h].first+=u;
-					}
-				}
-			}
-			cur-=x[i];
-			pair<LL,LL>p(x[i],a[i]);
-			while(t>h&&a[i]>=q[t-1].second){
-				--t;p.first+=q[t].first;
-			}
-			q[t++]=p;
-		}
-		printf("%lld\n",ans);
-	}
-	return 0;
+    int n,i,j,t,num,ca=1;
+    scanf("%d",&t);
+    while(t--){
+        int cnt=0;
+        scanf("%d%d",&num,&n);
+        for(i=0;i<n;i++){
+            scanf("%s%d%d",q[i].op,&q[i].l,&q[i].r);
+            x[cnt++]=q[i].l;x[cnt++]=q[i].r;
+        }
+        x[cnt++]=0;x[cnt++]=num-1;
+        sort(x,x+cnt);
+        int m=1;
+        for(i=1;i<cnt;i++)   if(x[i]!=x[i-1]) x[m++]=x[i];
+        for(i=m-1;i>=1;i--)  if(x[i]!=x[i-1]+1) x[m++]=x[i-1]+1;
+        sort(x,x+m);
+        build(0,m-1,1);
+        printf("Case #%d:\n",ca++);
+        for(i=0;i<n;i++){
+            int l=lower_bound(x,x+m,q[i].l)-x;
+            int r=lower_bound(x,x+m,q[i].r)-x;
+            int c=q[i].op[0]=='p'?1:-1;
+            update(l,r,c,0,m-1,1);
+            printf("%d\n",sum[1]);
+        }
+    }
+    return 0;
 }
