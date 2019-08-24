@@ -47,8 +47,8 @@ LL solve(){
 	return res;	
 }
 int main(){
-	freopen("color.in","r",stdin);
-	freopen("color.out","w",stdout);
+//	freopen("color.in","r",stdin);
+//	freopen("color.out","w",stdout);
 	scanf("%d%d%d",&n,&m,&K);
 	int fl=-1;
 	for(int i=1;i<=K;i++){
