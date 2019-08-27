@@ -1,79 +1,122 @@
-#include<cstdio>
-#include<cstring>
-#include<algorithm>
+#include <stdio.h>
+#include <string.h>
+#include <algorithm>
 using namespace std;
-#define LL rt<<1
-#define RR rt<<1|1
-#define lson l,m,LL
-#define rson m+1,r,RR
-const int maxn  =  44444;
-int col[maxn<<2],sum[maxn<<2];
-int lbd[maxn<<2],rbd[maxn<<2];
-struct node{
-    char op[5];
-    int l,r;
-}q[22222];
-int x[maxn];
-void pushup(int rt,int l,int r){
-    if(col[rt]){
-        sum[rt]=0;
-        lbd[rt]=rbd[rt]=1;
-        return;
-    }
-    if(l==r){
-        lbd[rt]=rbd[rt]=0;
-        sum[rt]=1;
-        return;
-    }
-    lbd[rt]=lbd[LL];
-    rbd[rt]=rbd[RR];
-    sum[rt]=sum[LL]+sum[RR]-(!rbd[LL]&&!lbd[RR]);
+const int N = 1e5 + 3;
+pair<int,int> a[N];
+int l[N],r[N],dp[N][2];
+void pre(int n){
+	for(int i=1;i<=n;i++)
+		l[i] = r[i] = i;
+	for(int i=2;i<=n;i++)
+	{
+		int k = i;
+		while(l[k] != 1  && a[i].first-a[l[k]-1].first <= a[i].second)
+			k = l[k] - 1;
+		l[i] = l[k];
+	}
+	for(int i=n-1;i>=1;i--)
+	{
+		int k = i;
+		while(r[k] != n  && a[r[k]+1].first-a[i].first <= a[i].second)
+			k = r[k] + 1;
+		r[i] = r[k];
+	}
 }
-void build(int l,int r,int rt){
-    sum[rt]=1;
-    col[rt]=lbd[rt]=rbd[rt]=0;
-    if(l==r) return ;
-    int m=(l+r)>>1;
-    build(lson);
-    build(rson);
+
+inline void check_min(int &a,int b){
+	a = a < b ? a : b;
 }
-void update(int L,int R,int c,int l,int r,int rt){
-    if(L<=l&&r<=R) {
-        col[rt]+=c;
-        pushup(rt,l,r);
-        return ;
-    }
-    int m=(l+r)>>1;
-    if(L<=m) update(L,R,c,lson);
-    if(R>m) update(L,R,c,rson);
-    if(col[rt]) return;
-    pushup(rt,l,r);
+
+#define lson u<<1
+#define rson u<<1|1
+
+struct Seg
+{
+	int l,r;
+	int mmin,lazy;
+	inline int mid(){
+		return l + r >> 1;
+	}
+}T[N<<2];
+
+void build(int u,int l,int r)
+{
+	T[u].l = l , T[u].r = r;
+	T[u].mmin = T[u].lazy = N;
+	if(l == r - 1)
+		return ;
+	int m = T[u].mid();
+	build(lson,l,m);
+	build(rson,m,r);
 }
-int main(){
-    int n,i,j,t,num,ca=1;
-    scanf("%d",&t);
-    while(t--){
-        int cnt=0;
-        scanf("%d%d",&num,&n);
-        for(i=0;i<n;i++){
-            scanf("%s%d%d",q[i].op,&q[i].l,&q[i].r);
-            x[cnt++]=q[i].l;x[cnt++]=q[i].r;
-        }
-        x[cnt++]=0;x[cnt++]=num-1;
-        sort(x,x+cnt);
-        int m=1;
-        for(i=1;i<cnt;i++)   if(x[i]!=x[i-1]) x[m++]=x[i];
-        for(i=m-1;i>=1;i--)  if(x[i]!=x[i-1]+1) x[m++]=x[i-1]+1;
-        sort(x,x+m);
-        build(0,m-1,1);
-        printf("Case #%d:\n",ca++);
-        for(i=0;i<n;i++){
-            int l=lower_bound(x,x+m,q[i].l)-x;
-            int r=lower_bound(x,x+m,q[i].r)-x;
-            int c=q[i].op[0]=='p'?1:-1;
-            update(l,r,c,0,m-1,1);
-            printf("%d\n",sum[1]);
-        }
-    }
-    return 0;
+
+void push_up(int u)
+{
+	T[u].mmin = min(T[lson].mmin,T[rson].mmin);
+}
+
+void push_down(int u)
+{
+	if(T[u].lazy == N)
+		return ;
+	check_min(T[lson].mmin,T[u].lazy);
+	check_min(T[rson].mmin,T[u].lazy);
+	check_min(T[lson].lazy,T[u].lazy);
+	check_min(T[rson].lazy,T[u].lazy);
+	T[u].lazy = N;
+}
+
+void updata(int u,int l,int r,int up)
+{
+	if(T[u].l == l && T[u].r == r)
+	{
+		check_min(T[u].mmin,up);
+		check_min(T[u].lazy,up);
+		return ;
+	}
+	push_down(u);
+	int m = T[u].mid();
+	if(r <= m)
+		updata(lson,l,r,up);
+	else if(l >= m)
+		updata(rson,l,r,up);
+	else
+		updata(lson,l,m,up) , updata(rson,m,r,up);
+	push_up(u);
+}
+
+int query(int u,int l)
+{
+	if(T[u].l == l && T[u].r == l+1)
+		return T[u].mmin;
+	push_down(u);
+	int m = T[u].mid();
+	if(l <  m)
+		return query(lson,l);
+	else
+		return query(rson,l);
+}
+
+int main()
+{
+	int n;
+	while(~scanf("%d",&n))
+	{
+		for(int i=1;i<=n;i++)
+			scanf("%d%d",&a[i].first,&a[i].second);
+		sort(a+1,a+1+n);
+		pre(n);
+		build(1,1,n+1);
+		dp[0][0] = dp[0][1] = 0;
+		for(int i=1;i<=n;i++)
+		{
+			dp[i][0] = min(dp[l[i]-1][0],dp[l[i]-1][1]) + 1;
+			dp[i][1] = min(dp[i-1][0],dp[i-1][1]) + 1;
+			check_min(dp[i][1],query(1,i));
+			updata(1,i,r[i]+1,dp[i][1]);
+		}
+		printf("%d\n",min(dp[n][0],dp[n][1]));
+	}
+	return 0;
 }
