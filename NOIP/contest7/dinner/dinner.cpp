@@ -1,52 +1,52 @@
 #include<bits/stdc++.h>
 #define LL long long
 using namespace std;
-int n;LL P;
-struct Pbl{
-	int pri[105],pcnt,base;
-	bool mark[105];
-	void Init(){
-		for(int i=2;i<=n;i++){
-			if(mark[i])continue;
-			pri[pcnt++]=i;
-			for(int j=i;j<=n;j+=i)
-				mark[j]=1;
-		}
-		for(int i=2;i<=n;i++){
-			for(int j=0;j<pcnt;j++)
-				if(i%pri[j]==0)
-					hav[i]|=(1<<j);
-		}
-	}
-	void Add(int &x,int y){
-		x+=y;
-		if(x>=P)x-=P;
-	}
-	int sum[1<<25],tmp[1<<25],hav[105];
-	void solve(){
-		Init();
-		sum[0]=1;
-		base=(1<<pcnt)-1;
-		for(int i=2;i<=n;i++){
-			memset(tmp,0,sizeof(tmp));
-			for(int j=0;j<=base;j++)Add(tmp[j|hav[i]],sum[j]);
-			for(int j=0;j<=base;j++)Add(sum[j],tmp[j]);
-		}
-		memcpy(tmp,sum,sizeof(tmp));
-		for(int i=0;i<pcnt;i++)
-			for(int j=0;j<=base;j++)
-				if(j&1<<i)
-					Add(sum[j],sum[j^(1<<i)]);
-		int ans=0;
-		for(int i=0;i<=base;i++)
-			Add(ans,1LL*tmp[i]*sum[i^base]%P);
-		printf("%d",ans);
-	}
-}pbl;
+LL P,ans;
+int f[1<<8][1<<8],p[2][1<<8][1<<8];
+int pri[8]={2,3,5,7,11,13,17,19},n;
+struct node{int x,S;}A[505];
+bool cmp(node a,node b){
+	if(a.x!=b.x)return a.x<b.x;
+	return a.S<b.S;
+}
+template<typename T,typename TT>
+void Add(T &x,TT y){
+	x+=y;
+	if(x>=P)x-=P;
+}
 int main(){
-	freopen("dinner.in","r",stdin);
-	freopen("dinner.out","w",stdout);
 	scanf("%d%lld",&n,&P);
-	pbl.solve();
+	for(int i=2;i<=n;i++){
+		int tmp=i;
+		for(int j=0;j<8;j++)
+			if(tmp%pri[j]==0){
+				A[i].S|=(1<<j);
+				while(tmp%pri[j]==0)
+					tmp/=pri[j];
+			}
+		A[i].x=tmp;
+	}
+	sort(A+2,A+n+1,cmp);
+	f[0][0]=1;
+	for(int i=2;i<=n;i++){
+		if(i==2||A[i].x==1||A[i].x!=A[i-1].x){
+			memcpy(p[0],f,sizeof(f));
+			memcpy(p[1],f,sizeof(f));
+		}
+		for(int j=255;j>=0;j--)
+			for(int k=255;k>=0;k--){
+				if((k&A[i].S)==0)Add(p[0][j|A[i].S][k],p[0][j][k]);
+				if((j&A[i].S)==0)Add(p[1][j][k|A[i].S],p[1][j][k]);
+			}
+		if(i==n||A[i].x==1||A[i].x!=A[i+1].x){
+			for(int j=0;j<=255;j++)
+				for(int k=0;k<=255;k++)
+					f[j][k]=((p[0][j][k]+p[1][j][k]-f[j][k])%P+P)%P;
+		}
+	}
+	for(int i=0;i<=255;i++)
+		for(int j=0;j<=255;j++)
+			Add(ans,f[i][j]);
+	printf("%lld\n",ans);
 	return 0;
 }
