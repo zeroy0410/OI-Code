@@ -18,6 +18,33 @@ void Add(int a,int b){
 	G[++tt]=(edge){h[a],b};
 	h[a]=tt;
 }
+struct Pbl{
+	int ans[25];
+	void solve(){
+		for(int i=0;i<1<<n;i++){
+			for(int j=1;j<=n;j++){
+				if(i&1<<j-1)ans[j]=2;
+				else ans[j]=1;
+			}
+			bool fl=1;
+			for(int j=1;j<=n;j++){
+				int c=0;
+				for(int k=h[j];k;k=G[k].nxt){
+					int u=G[k].to;
+					if(ans[u]==ans[j])c++;
+				}
+				if(c>1){fl=0;break;}
+			}
+			if(fl){
+				for(int j=1;j<=n;j++)
+					printf("%d ",ans[j]);
+				cout<<endl;
+				return;
+			}
+		}
+		puts("-1");
+	}
+}pbl;
 int main(){
 	freopen("group.in","r",stdin);
 	freopen("group.out","w",stdout);
