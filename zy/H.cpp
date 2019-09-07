@@ -15,7 +15,7 @@ int main(){
 		int res=0;
 		for(int j=0;j<n;j++)
 			if(i&1<<j)
-				res+=cnt[G[j]&(~i)];
+				res+=cnt[G[j]&(~i)];//能够连接且不在当前状态的server有几个
 		for(int j=0;j<n;j++)
 			if(!(i&1<<j))
 				dp[i|1<<j]=min(dp[i|1<<j],dp[i]+res);
@@ -23,3 +23,4 @@ int main(){
 	printf("%d\n",dp[(1<<n)-1]);
 	return 0;
 }
+//因为是一个一个的往里加点，所以说，每个点由于加进去的先后不同，被计算到的贡献也会逐步累加

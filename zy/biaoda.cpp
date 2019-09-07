@@ -1,24 +1,42 @@
 #include<bits/stdc++.h>
-#define For(a,b,c) for(int a=b,_=c;a<=_;++a)
 using namespace std;
-const int N=20;
-int n,m,go[N],C[1<<N],F[1<<N];
-int main() {
-	scanf("%d%d",&n,&m);
-	For(i,1,m) {
-		int a,b;
-		scanf("%d%d",&a,&b),--a,--b;
-		go[a]|=1<<b,go[b]|=1<<a;
+const int P=1e9+7;
+int a[20];
+int nxt[1<<16][20];
+int rn[20],ro[20];
+int dp[20][1<<16];
+int main(){
+	int T;
+	scanf("%d",&T);
+	while(T--){
+		int n,K,L;
+		scanf("%d%d%d",&n,&K,&L);
+		for(int i=1;i<=n;i++)scanf("%d",&a[i]);
+		for(int i=0;i<(1<<n);i++)
+			for(int j=1;j<=K;j++){
+				nxt[i][j]=0;
+				for(int k=1;k<=n;k++){
+					ro[k]=ro[k-1]+((i>>(k-1))&1);
+					if(a[k]==j)rn[k]=ro[k-1]+1;
+					else rn[k]=max(ro[k],rn[k-1]);
+					if(rn[k]>rn[k-1])nxt[i][j]|=1<<(k-1);
+				}
+			}
+		memset(dp,0,sizeof(dp));
+		dp[0][0]=1;
+		for(int i=1;i<=n;i++)
+			for(int j=0;j<(1<<n);j++){	
+				if(!dp[i-1][j])continue;
+				for(int k=1;k<=K;k++){
+					(dp[i][nxt[j][k]]+=dp[i-1][j])%=P;
+					cout<<j<<' '<<k<<' '<<nxt[j][k]<<endl;
+				}
+			}
+		int ans=0;
+		for(int i=0;i<(1<<n);i++)
+			if(__builtin_popcount(i)==L)
+				(ans+=dp[n][i])%=P;
+		printf("%d\n",ans);
 	}
-	For(i,1,(1<<n)-1) C[i]=C[i&(i-1)]+1;
-	memset(F,60,sizeof(F)),F[0]=0;
-	For(i,0,(1<<n)-2) {
-		int c=0;
-		For(j,0,n-1)
-		if(i&(1<<j)) c+=C[go[j]&(~i)];
-		For(j,0,n-1)
-		if(!(i&(1<<j))) F[i|(1<<j)]=min(F[i|(1<<j)],F[i]+c);
-	}
-	printf("%d\n",F[(1<<n)-1]);
 	return 0;
-}
+}//
