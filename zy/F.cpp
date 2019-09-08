@@ -33,6 +33,7 @@ int main(){
 		memset(dp,0,sizeof(dp));
 		dp[0][0]=1;
 		Init();
+		ans=0;
 		for(int i=1;i<=n;i++){
 			for(int j=0;j<1<<n;j++){
 				if(!dp[i-1][j])continue;

@@ -26,7 +26,7 @@ int main(){
 	while(T--){
 		memset(cnt,0,sizeof(cnt));
 		scanf("%d",&n);
-		ex.clear();S.clear();
+		ex.clear();S.clear()
 		for(int i=1;i<=n;i++)scanf("%d",A+i),cnt[A[i]]++;
 		for(int i=1;i<=n;i++)ex.insert(A[i]),S.insert((node){A[i],cnt[A[i]]});
 		bool fl=1;
