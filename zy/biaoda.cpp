@@ -1,42 +1,35 @@
 #include<bits/stdc++.h>
 using namespace std;
-const int P=1e9+7;
-int a[20];
-int nxt[1<<16][20];
-int rn[20],ro[20];
-int dp[20][1<<16];
+int mp[2005];
+void init(){
+	mp[10]=0,mp[20]=1,mp[50]=2,mp[100]=3,mp[200]=4,mp[500]=5,mp[2000]=6;
+}
+void chk(int &x,int y){if(x>y)x=y;}
+int a[100005];
+int dp[2][8][1<<7];//枚举到第几个，上一位是几，当前已经确定了的二进制。 
 int main(){
-	int T;
-	scanf("%d",&T);
+	init();
+	int T;scanf("%d",&T);
 	while(T--){
-		int n,K,L;
-		scanf("%d%d%d",&n,&K,&L);
-		for(int i=1;i<=n;i++)scanf("%d",&a[i]);
-		for(int i=0;i<(1<<n);i++)
-			for(int j=1;j<=K;j++){
-				nxt[i][j]=0;
-				for(int k=1;k<=n;k++){
-					ro[k]=ro[k-1]+((i>>(k-1))&1);
-					if(a[k]==j)rn[k]=ro[k-1]+1;
-					else rn[k]=max(ro[k],rn[k-1]);
-					if(rn[k]>rn[k-1])nxt[i][j]|=1<<(k-1);
-				}
-			}
-		memset(dp,0,sizeof(dp));
-		dp[0][0]=1;
-		for(int i=1;i<=n;i++)
-			for(int j=0;j<(1<<n);j++){	
-				if(!dp[i-1][j])continue;
-				for(int k=1;k<=K;k++){
-					(dp[i][nxt[j][k]]+=dp[i-1][j])%=P;
-					cout<<j<<' '<<k<<' '<<nxt[j][k]<<endl;
-				}
-			}
-		int ans=0;
-		for(int i=0;i<(1<<n);i++)
-			if(__builtin_popcount(i)==L)
-				(ans+=dp[n][i])%=P;
+		int n,st=0;scanf("%d",&n);
+		for(int i=1;i<=n;i++){
+			scanf("%d",&a[i]);
+			a[i]=mp[a[i]];
+			st|=1<<a[i];
+		}
+		memset(dp,63,sizeof(dp));
+		dp[0][7][0]=0;
+		for(int i=1;i<=n;i++){
+			memset(dp[i&1],63,sizeof(dp[i&1]));
+			for(int j=0;j<=7;j++)
+				for(int k=0;k<(1<<7);k++){
+					chk(dp[i&1][j][k],dp[~i&1][j][k]+(j!=a[i]));
+					if(!(k&(1<<a[i])))chk(dp[i&1][a[i]][k|(1<<a[i])],dp[~i&1][j][k]);
+				} 
+		}
+		int ans=1e9;
+		for(int i=0;i<7;i++)chk(ans,dp[n&1][i][st]);
 		printf("%d\n",ans);
 	}
 	return 0;
-}//
+} 
