@@ -1,56 +1,71 @@
 #include<bits/stdc++.h>
 using namespace std;
-const int N=1001000,mod=998244353;
 typedef long long ll;
-int ksm(ll a,int b,int c=1){
-    for(;b;b/=2,a=a*a%mod)
-        if(b&1)c=c*a%mod;
-    return c;
+const int M=1e6+5,P=998244353;
+void rd(int &x){
+    static char c;x=0;
+    while((c=getchar())<48);
+    do x=(x<<1)+(x<<3)+(c^48);
+    while((c=getchar())>47);
 }
-int f[N],inv[N],p,n,G[N],to[N*2],ne[N*2],xb;
-void init(){
-    inv[1]=1;f[1]=(p+1)%mod;
-    for(int i=2;i<=n;++i){
-        inv[i]=mod-mod/i*(ll)inv[mod%i]%mod;
-        f[i]=((ll)inv[i]*p+1)%mod;
-    }
+int n,p;
+int inv[M],v[M];
+int h[M],nx[M<<1],to[M<<1],tot;
+void add(int a,int b){
+    to[++tot]=b;
+    nx[tot]=h[a];
+    h[a]=tot;
 }
-void add(int x,int y){ne[xb]=G[x];to[xb]=y;G[x]=xb++;}
-int ansx=0,ansy=1,tmpx=1,tmpy=1,zer=0;
-int sz[N],fa[N];
-void dfs(int x){
+int sz[M];
+int resx=1,resy=1,ansx=0,ansy=1,cnt=0;
+void dfs(int x,int f){
     sz[x]=1;
-    for(int i=G[x],u;~i;i=ne[i])if((u=to[i])!=fa[x]){
-        fa[u]=x;dfs(u);sz[x]+=sz[u];
+    for(int i=h[x];i;i=nx[i]){
+        int y=to[i];
+        if(y==f)continue;
+        dfs(y,x);
+        sz[x]+=sz[y];
     }
-    if(!f[sz[x]])++zer;else tmpx=(ll)tmpx*f[sz[x]]%mod;
+    int p=v[sz[x]];
+	cout<<sz[x]<<' '<<p<<endl;
+    if(p)resx=(ll)resx*p%P;
+    else cnt++;
 }
-void dfs2(int x){
-    if(!zer){
-        ansx=((ll)ansx*tmpy+(ll)ansy*tmpx)%mod;
-        ansy=(ll)ansy*tmpy%mod;
+void redfs(int x,int f){
+    if(!cnt){
+        ansx=((ll)ansx*resy+(ll)resx*ansy)%P;
+        ansy=(ll)ansy*resy%P;
     }
-    int tx=tmpx,ty=tmpy,tz=zer;
-    for(int i=G[x],u;~i;i=ne[i])if((u=to[i])!=fa[x]){
-        tmpx=tx;tmpy=ty;zer=tz;
-        if(!f[sz[u]])--zer;else tmpy=(ll)tmpy*f[sz[u]]%mod;
-        if(!f[n-sz[u]])++zer;else tmpx=(ll)tmpx*f[n-sz[u]]%mod;
-        dfs2(u);        
+    for(int i=h[x];i;i=nx[i]){
+        int y=to[i];
+        if(y==f)continue;
+        int q=v[sz[y]],p=v[n-sz[y]];
+        q?resy=(ll)resy*q%P:cnt--;
+        p?resx=(ll)resx*p%P:cnt++;
+        redfs(y,x);
+        q?resx=(ll)resx*q%P:cnt++;
+        p?resy=(ll)resy*p%P:cnt--;
     }
+}
+int Inv(int a){
+    int res=1;
+    for(int b=P-2;b;b>>=1){
+        if(b&1)res=(ll)res*a%P;
+        a=(ll)a*a%P;
+    }
+    return res;
 }
 int main(){
-//  freopen("treap.in","r",stdin);
-//  freopen("treap.out","w",stdout);
-    ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
-    memset(G,-1,sizeof G);
-    cin>>n>>p;p=(p+mod-1)%mod;init();
-    for(int i=1;i<n;++i){
-        int x,y;cin>>x>>y;
-        add(x,y);add(y,x);
+    rd(n),rd(p);
+    inv[0]=inv[1]=1;
+    for(int i=2;i<=n;i++)inv[i]=(ll)(P-P/i)*inv[P%i]%P;
+    for(int i=0;i<=n;i++)v[i]=(ll)(i-1+p)*inv[i]%P;
+    for(int a,b,i=1;i<n;i++){
+        rd(a),rd(b);
+        add(a,b),add(b,a);
     }
-    dfs(1);
-    dfs2(1);
-    ansy=(ll)ansy*n%mod;
-    cout<<ksm(ansy,mod-2,ansx)<<endl;
+    dfs(1,0);
+    redfs(1,0);
+    printf("%lld\n",(ll)ansx*Inv(ansy)%P*inv[n]%P);
     return 0;
 }
