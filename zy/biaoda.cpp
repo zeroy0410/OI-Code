@@ -1,92 +1,88 @@
-#include<stdio.h>
-#include<bitset>
+#include<bits/stdc++.h>
 using namespace std;
 const int M=3005;
-int n,m;
-bitset<M>E[M],tmp;
-int Tc[45][3],tcc;
-namespace Subtask1
-{
-	void Solve()
-	{
-		tcc=0;
-		for(int i=1;i<=n;i++)
-			for(int j=1;j<i;j++)
-			{
-				if(!E[i][j])continue;
-				tmp=E[i]&E[j];
-				if(tmp.count())
-				{
-					for(int q=1;q<j;q++)
-						if(tmp[q])
-						{
-							++tcc;
-							Tc[tcc][0]=i;Tc[tcc][1]=j;Tc[tcc][2]=q;
-						}
+int pr[M],ct;
+bool mark[M],No[M];
+void init(){
+	for(int i=2;i<=M-5;i++){
+		if(mark[i])continue;
+		pr[++ct]=i;
+		for(int j=i+i;j<=M-5;j+=i)
+			mark[j]=1;
+	}
+	for(int i=2;i*i<=M-5;i++)
+		for(int j=i*i;j<=M-5;j+=i*i)
+			No[j]=1;
+}
+bool num[M],Mark[M];
+struct node{
+	int mp,sp;
+	bool operator <(const node &_)const{
+		return mp<_.mp;
+	}
+}a[M];
+int p[20];
+int dp[1<<16],res[1<<16];
+int main(){
+	init();
+	int T;
+	scanf("%d",&T);
+	while(T--){
+		int n,P;
+		scanf("%d%d",&n,&P);
+		memset(num,false,sizeof(num));
+		for(int i=2;i<=n;i++){
+			int x=i;
+			for(int j=1;j<=ct&&pr[j]<=n;j++)
+				while(x%pr[j]==0)num[j]^=1,x/=pr[j];
+		}
+		memset(Mark,0,sizeof(Mark));
+		for(int i=1;i<=ct&&pr[i]<=n;i++){
+			if(num[i])continue;
+			for(int j=pr[i];j<=n;j+=pr[i])Mark[j]=1;
+		}
+		//No表示永远也用不到的数（含有两个及以上相同的质因子）
+		//Mark表示该次用不到的数（含有总和为偶数的质因子） 
+		//重新将有用的小质数标号
+		int sl=0;
+		for(int i=1;pr[i]*pr[i]<=n;i++)
+			if(num[i])p[sl++]=pr[i];
+		//for(int i=0;i<sl;i++)printf("%d ",p[i]);puts("");
+		//将所有剩下的数按照大质数分类，并记下所有小质数的状态（寿司晚宴） 
+		int cnt=0;
+		for(int i=1;i<=n;i++){
+			if(No[i]||Mark[i])continue;
+			cnt++;
+			//printf("%d ",i);
+			int x=i;
+			a[cnt].sp=0;
+			for(int j=0;j<sl;j++)
+				if(x%p[j]==0)x/=p[j],a[cnt].sp|=1<<j;
+			//printf("%d\n",x);
+			a[cnt].mp=x;
+		}//puts("!");
+		sort(a+1,a+1+cnt);
+		for(int i=1;i<=cnt;i++)
+			printf("%d %d\n",a[i].sp,a[i].mp);
+		//printf("%d\n",cnt);
+		//for(int i=1;i<=cnt;i++)printf("%d %d\n",a[i].mp,a[i].sp);
+		memset(dp,0,sizeof(dp));
+		dp[0]=1;
+		for(int i=1;i<=cnt;i++){
+			for(int j=(1<<sl)-1;j>=0;j--){
+				if((j&a[i].sp)==0){
+					if(a[i].mp==1)(dp[j|a[i].sp]+=dp[j])%=P;
+					else (dp[j|a[i].sp]+=res[j])%=P;
 				}
+				printf("%d\n",dp[j]);
 			}
-	}
-};
-
-namespace Subtask2
-{
-	bool Public(int x,int y)
-	{
-		return Tc[x][0]==Tc[y][0] ||
-			Tc[x][0]==Tc[y][1] ||
-			Tc[x][0]==Tc[y][2] ||
-			Tc[x][1]==Tc[y][0] ||
-			Tc[x][1]==Tc[y][1] ||
-			Tc[x][1]==Tc[y][2] ||
-			Tc[x][2]==Tc[y][0] ||
-			Tc[x][2]==Tc[y][1] ||
-			Tc[x][2]==Tc[y][2];
-	}
-	int Out[45][3],Deg[45];
-	int ans;
-	bool Mk[45];
-	void dfs(int d,int c,int las)
-	{
-		if(d>tcc){ans=max(ans,c);return;}
-		if(c+las/2<=ans)return;
-		if(Mk[d])return dfs(d+1,c,las);
-		bool f=false;
-		for(int i=0;i<Deg[d];i++)
-		{
-			int v=Out[d][i];
-			if(Mk[v])continue;
-			f=true;
-			Mk[v]=true;dfs(d+1,c+1,las-2);Mk[v]=false;
+			//	for(int j=0;j<(1<<sl);j++)printf("%d ",dp[j]);puts("");
+			if(i!=cnt&&a[i].mp!=a[i+1].mp){
+				for(int j=0;j<(1<<sl);j++)
+					res[j]=dp[j],dp[j]=0;
+			}
 		}
-		if(!f)dfs(d+1,c,las-1);
-	}
-	void Solve()
-	{
-		for(int i=1;i<=tcc;i++)Deg[i]=0;
-		for(int i=1;i<=tcc;i++)
-			for(int j=i+1;j<=tcc;j++)
-				if(i!=j && Public(i,j))
-					Out[i][Deg[i]++]=j;
-		ans=0;
-		dfs(1,0,n);
-		printf("%d\n",tcc-ans);
-	}
-};
-
-int main()
-{
-	int T;scanf("%d",&T);
-	while(T--)
-	{
-		scanf("%d%d",&n,&m);
-		for(int i=1;i<=n;i++)E[i].reset();
-		for(int i=1;i<=m;i++)
-		{
-			int u,v;scanf("%d%d",&u,&v);if(u>v)swap(u,v);
-			E[v][u]=1;
-		}
-		Subtask1::Solve();
-		Subtask2::Solve();
+		printf("%d\n",dp[(1<<sl)-1]);
 	}
 	return 0;
 }
