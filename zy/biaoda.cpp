@@ -1,88 +1,85 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
-const int M=3005;
-int pr[M],ct;
-bool mark[M],No[M];
-void init(){
-	for(int i=2;i<=M-5;i++){
-		if(mark[i])continue;
-		pr[++ct]=i;
-		for(int j=i+i;j<=M-5;j+=i)
-			mark[j]=1;
-	}
-	for(int i=2;i*i<=M-5;i++)
-		for(int j=i*i;j<=M-5;j+=i*i)
-			No[j]=1;
+#define M 35
+int gcd(int a,int b){
+    return !b?a:gcd(b,a%b);
 }
-bool num[M],Mark[M];
-struct node{
-	int mp,sp;
-	bool operator <(const node &_)const{
-		return mp<_.mp;
-	}
-}a[M];
-int p[20];
-int dp[1<<16],res[1<<16];
+const int P=1e9+7;
+void calc(int &x,int y){
+    x+=y;
+    if(x>=P)x-=P;
+}
+void Mul(int &x,int y){
+    x=1LL*x*y%P;
+}
+int F[M][M],A[M],n,K,lim,mark[M],Hv[M],C[M][M];
+int Nd[1<<20],Cnt[1<<20],Pos[M],len_pos,bin[1<<20];
+void Init(){
+    C[0][0]=1;
+    for(int i=1;i<=27;i++){
+        C[i][0]=1;
+        for(int j=1;j<i;j++)C[i][j]=(C[i-1][j]+C[i-1][j-1])%P;
+        C[i][i]=1;
+    }
+    for(int j=0;j<20;j++)bin[1<<j]=j;
+    mark[11]=mark[13]=mark[17]=mark[19]=mark[22]=mark[23]=mark[26]=1;
+    for(int i=1;i<=27;i++)if(!mark[i])Pos[len_pos++]=i;
+    for(int i=1;i<1<<20;i++)Cnt[i]=Cnt[i^(i&-i)]+1;
+    n=27;
+    for(int i=1;i<=n;i++)
+        for(int j=1;j<=n;j++)F[i][j]=gcd(i,j);
+}
 int main(){
-	init();
-	int T;
-	scanf("%d",&T);
-	while(T--){
-		int n,P;
-		scanf("%d%d",&n,&P);
-		memset(num,false,sizeof(num));
-		for(int i=2;i<=n;i++){
-			int x=i;
-			for(int j=1;j<=ct&&pr[j]<=n;j++)
-				while(x%pr[j]==0)num[j]^=1,x/=pr[j];
-		}
-		memset(Mark,0,sizeof(Mark));
-		for(int i=1;i<=ct&&pr[i]<=n;i++){
-			if(num[i])continue;
-			for(int j=pr[i];j<=n;j+=pr[i])Mark[j]=1;
-		}
-		//No表示永远也用不到的数（含有两个及以上相同的质因子）
-		//Mark表示该次用不到的数（含有总和为偶数的质因子） 
-		//重新将有用的小质数标号
-		int sl=0;
-		for(int i=1;pr[i]*pr[i]<=n;i++)
-			if(num[i])p[sl++]=pr[i];
-		//for(int i=0;i<sl;i++)printf("%d ",p[i]);puts("");
-		//将所有剩下的数按照大质数分类，并记下所有小质数的状态（寿司晚宴） 
-		int cnt=0;
-		for(int i=1;i<=n;i++){
-			if(No[i]||Mark[i])continue;
-			cnt++;
-			//printf("%d ",i);
-			int x=i;
-			a[cnt].sp=0;
-			for(int j=0;j<sl;j++)
-				if(x%p[j]==0)x/=p[j],a[cnt].sp|=1<<j;
-			//printf("%d\n",x);
-			a[cnt].mp=x;
-		}//puts("!");
-		sort(a+1,a+1+cnt);
-		for(int i=1;i<=cnt;i++)
-			printf("%d %d\n",a[i].sp,a[i].mp);
-		//printf("%d\n",cnt);
-		//for(int i=1;i<=cnt;i++)printf("%d %d\n",a[i].mp,a[i].sp);
-		memset(dp,0,sizeof(dp));
-		dp[0]=1;
-		for(int i=1;i<=cnt;i++){
-			for(int j=(1<<sl)-1;j>=0;j--){
-				if((j&a[i].sp)==0){
-					if(a[i].mp==1)(dp[j|a[i].sp]+=dp[j])%=P;
-					else (dp[j|a[i].sp]+=res[j])%=P;
-				}
-				printf("%d\n",dp[j]);
-			}
-			//	for(int j=0;j<(1<<sl);j++)printf("%d ",dp[j]);puts("");
-			if(i!=cnt&&a[i].mp!=a[i+1].mp){
-				for(int j=0;j<(1<<sl);j++)
-					res[j]=dp[j],dp[j]=0;
-			}
-		}
-		printf("%d\n",dp[(1<<sl)-1]);
-	}
-	return 0;
+	Init();
+    int T;
+    cin>>T;
+    while(T--){
+        scanf("%d%d%d",&n,&K,&lim);
+        for(int i=1;i<=n;i++)
+            scanf("%d",&A[i]);
+        int bs=0,Bs=0;
+        for(int i=1;i<=n;i++)bs|=1<<A[i]-1;
+        for(int i=1;i<=n;i++)
+            for(int j=1;j<=n;j++)Bs|=1<<F[A[i]][A[j]]-1;
+        for(int i=1;i<=lim;i++){
+            Hv[i]=0;
+            for(int j=1;j<=n;j++)Hv[i]|=1<<F[i][A[j]]-1;
+        }
+        int tt=0,ans=0,can_use=0;
+        for(int i=1;i<=lim;i++)tt+=!mark[i];
+        for(int i=1;i<=lim;i++)
+            if(mark[i]&&(i&1))can_use++;
+        for(int i=0;i<1<<tt;i++){
+            Nd[i]=Bs;
+            int tr=0;
+            int last=bin[i&-i],res=0;
+            for(int j=0;j<tt;j++)
+                if((1<<j)&i)res|=1<<F[Pos[j]][Pos[last]]-1,tr|=1<<Pos[j]-1;
+            Nd[i]|=Nd[i^(i&-i)];
+            Nd[i]|=res;
+            Nd[i]|=Hv[Pos[last]];
+            tr|=bs;
+            if((tr&Nd[i])!=Nd[i])continue;
+            int fl=0;
+            if(tr&2)fl=1;
+            else {
+                fl=1;
+                for(int j=4;fl&&j<=lim;j+=2)
+                    if(tr&(1<<j-1))fl=0;
+            }
+            if(fl){
+                fl=0;
+                if(lim>=22)fl++;
+                if(lim>=26)fl++;
+            }
+            for(int j=0;j<=can_use;j++){
+                if(j+Cnt[i]>K)break;
+                calc(ans,1LL*C[can_use][j]*C[K-1][j+Cnt[i]-1]%P);
+                if(fl&&j+Cnt[i]!=K)calc(ans,1LL*fl*C[can_use][j]*C[K-1][j+Cnt[i]]%P);
+                if(fl==2&&(tr&2)&&j+Cnt[i]<K-1)calc(ans,1LL*C[can_use][j]*C[K-1][j+Cnt[i]+1]%P);
+            }
+        }
+        printf("%d\n",ans);
+    }
+    return 0;
 }
