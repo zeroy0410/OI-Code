@@ -1,8 +1,10 @@
 #include<stdio.h>
 #include<algorithm>
+#pragma GCC optimize(3)
 #define M 100005
 #define LL long long
 using namespace std;
+
 int n,m;
 struct edge{
 	int a,b;
@@ -15,15 +17,13 @@ int getfa(int x){
 bool mark[M*5];
 LL ans=0;
 int main(){
-	freopen("graph.in","r",stdin);
-	freopen("graph.out","w",stdout);
 	scanf("%d%d",&n,&m);
-	for(int i=1;i<=m;i++)
+	for(register int i=1;i<=m;i++)
 		scanf("%d%d%lld",&G[i].a,&G[i].b,&G[i].v);
-	for(int i=1;i<=m;i++)mark[i]=1;
+	for(register int i=1;i<=m;i++)mark[i]=1;
 	for(int j=63;j>=0;j--){
-		for(int i=1;i<=n;i++)fa[i]=i;
-		for(int i=1;i<=m;i++){
+		for(register int i=1;i<=n;i++)fa[i]=i;
+		for(register int i=1;i<=m;i++){
 			if(!mark[i])continue;
 			int a=G[i].a,b=G[i].b;
 			LL v=G[i].v;
@@ -32,7 +32,7 @@ int main(){
 		}
 		if(getfa(1)==getfa(n)){
 			ans|=1LL<<j;
-			for(int i=1;i<=m;i++)
+			for(register int i=1;i<=m;i++)
 				if(mark[i]&&!(G[i].v&1LL<<j))mark[i]=0;
 		}
 	}

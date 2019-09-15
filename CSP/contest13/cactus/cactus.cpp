@@ -1,89 +1,58 @@
 #include<bits/stdc++.h>
 #define LL long long
+#pragma GCC optimize(3)
 #define M 10005
 using namespace std;
-bool mm1;
 int n,W,K;
 struct node{int a,b;}A[M];
-struct P30{
-	int dp[2][5005];
-	void solve(){
-		int ans=1e9;
-		for(int i=1;i<=n;i++){
-			int cur=0;
-			memset(dp[cur],60,sizeof(dp[cur]));int inf=dp[cur][0];
-			dp[cur][0]=0;
-			for(int j=i;j<=n;j++){
-				cur=!cur;
-				for(int k=0;k<=W;k++)dp[cur][k]=dp[!cur][k];
-				for(int k=0;k<=W-A[j].a;k++)
-					if(dp[!cur][k]!=inf)
-						dp[cur][k+A[j].a]=min(dp[cur][k+A[j].a],dp[!cur][k]+A[j].b);
-				if(dp[cur][W]<=K){
-					ans=min(ans,j-i+1);
-					break;
-				}
-			}
-		}
-		if(ans==1e9)puts("-1");
-		else printf("%d\n",ans);
-	}
-}p30;
-struct P100{
-	int dp[10005][5005];
-	int DP[5005];
-	int ans;
-	void calc(int l,int r){
-		if(l==r){
-			if(A[l].a==W)ans=1;
-			return;
-		}
-		int mid=(l+r)>>1;
-		memset(dp[mid+1],60,sizeof(dp[mid+1]));int inf=dp[mid+1][0];
-		dp[mid+1][0]=0;
-		for(int i=mid;i>=l;i--){
-			for(int k=0;k<=W;k++)dp[i][k]=dp[i+1][k];
-			for(int k=0;k<=W-A[i].a;k++)
-				if(dp[i+1][k]!=inf)
-					dp[i][k+A[i].a]=min(dp[i][k+A[i].a],dp[i+1][k]+A[i].b);
-		}
-		int cur=l;
+struct Sta{
+	int Ldp[M][5005],DP[5005],Ra[M],Rb[M],top1,top2;
+	void Init(){
+		memset(Ldp,60,sizeof(Ldp));
 		memset(DP,60,sizeof(DP));
-		DP[0]=0;
-		for(int i=mid+1;i<=r;i++){
-			for(int k=W;k>=A[i].a;k--)
-				DP[k]=min(DP[k],DP[k-A[i].a]+A[i].b);
-			while(cur<=mid){
-				bool fl=0;
-				for(int k=0;k<=W;k++){
-					if(DP[W-k]==inf||dp[cur][k]==inf)continue;
-					if(dp[cur][k]+DP[W-k]<=K){
-						ans=min(ans,i-cur+1);
-						fl=1;
-						break;
-					}
-				}
-				if(fl)cur++;
-				else break;
-			}
+		Ldp[0][0]=DP[0]=0;
+		top1=top2=0;
+	}
+	void Push(int a,int b){
+		++top2;Ra[top2]=a;Rb[top2]=b;
+		for(int i=W;i>=a;i--)DP[i]=min(DP[i],DP[i-a]+b);
+	}
+	void Pop(){
+		if(top1>0){top1--;return;}
+		for(int i=top2;i>=1;i--){
+			int a=Ra[i],b=Rb[i];
+			++top1;
+			for(int j=0;j<=W;j++)Ldp[top1][j]=Ldp[top1-1][j];
+			for(int j=W;j>=a;j--)Ldp[top1][j]=min(Ldp[top1][j],Ldp[top1][j-a]+b);
 		}
-		calc(l,mid);calc(mid+1,r);
+		top2=0; memset(DP,60,sizeof(DP));DP[0]=0;
+		top1--;
 	}
-	void solve(){
-		ans=1e9;
-		calc(1,n);
-		if(ans==1e9)puts("-1");
-		else printf("%d\n",ans);
+	bool check(){
+		for(int i=0;i<=W;i++)
+			if(Ldp[top1][i]+DP[W-i]<=K)
+				return 1;
+		return 0;
 	}
-}p100;
-bool mm2;
+}stk;
+bool mark[M];
 int main(){
-	freopen("cactus.in","r",stdin);
-	freopen("cactus.out","w",stdout);
-//	printf("%lf\n",(&mm2-&mm1)/1024.0/1024);
 	cin>>n>>W>>K;
 	for(int i=1;i<=n;i++)
 		scanf("%d%d",&A[i].a,&A[i].b);
-	p100.solve();
+	stk.Init();
+	int R=1,ans=1e9;
+	for(int L=1;L<=n;L++){
+		while(R<=n){
+			if(!mark[R])stk.Push(A[R].a,A[R].b),mark[R]=1;
+			if(stk.check())break;
+			R++;
+		}
+		if(R>n)break;
+		ans=min(ans,R-L+1);
+		stk.Pop();
+	}
+	if(ans==1e9)ans=-1;
+	printf("%d\n",ans);
 	return 0;
 }
