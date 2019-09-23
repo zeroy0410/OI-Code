@@ -1,70 +1,46 @@
-#include<stdio.h>
-#include<iostream>
-#include<string.h>
-#include<algorithm>
-#pragma GCC optimize(2)
-#define M 5005
+//By zcy
+#include<bits/stdc++.h>
 using namespace std;
-int n,h[M],tt;
-struct edge{
-	int nxt,to,co;
-}G[M<<1];
-void Add(int a,int b,int c){
-	G[++tt]=(edge){h[a],b,c};
-	h[a]=tt;
+#pragma GCC optimize(3)
+const int M=5005;
+int n;
+int h[M],nx[M<<1],to[M<<1],v[M<<1],tot;
+void add(int a,int b,int c){
+	to[++tot]=b;v[tot]=c;
+	nx[tot]=h[a];h[a]=tot;
 }
-int aa[M],bb[M],cc[M];
-int ans=2e9,ign;
-int mx[M][2];
-inline void Add(int* T,int d){
-	if(d>T[0]){T[1]=T[0];T[0]=d;}
-	else if(d>T[1])T[1]=d;
-}
-int zj,fa[M];
-void dfs(int x){
-	mx[x][0]=mx[x][1]=0;
-	for(int i=h[x];i;i=G[i].nxt){
-		int u=G[i].to,c=G[i].co;
-		if(x==aa[ign]&&u==bb[ign]||x==bb[ign]&&u==aa[ign])continue;
-		if(u==fa[x])continue;
-		fa[u]=x;
-		dfs(u);
-		Add(mx[x],mx[u][0]+c);
+struct Tree{
+	int fa[M],val[M],mxdis,mndis,dis[M],id,no;
+	void dfs(int x,int f,int d){
+		fa[x]=f;
+		dis[x]=max(dis[x],d);
+		if(mxdis<d)mxdis=d,id=x;
+		for(int i=h[x];i;i=nx[i])
+			if(to[i]!=f&&to[i]!=no)dfs(to[i],x,d+(val[to[i]]=v[i]));
 	}
-	zj=max(zj,mx[x][0]+mx[x][1]);
-}
-int mi;
-void redfs(int x){
-	if(mx[x][0]<mi)mi=mx[x][0];
-	for(int i=h[x];i;i=G[i].nxt){
-		int u=G[i].to,c=G[i].co;
-		if(x==aa[ign]&&u==bb[ign]||x==bb[ign]&&u==aa[ign])continue;
-		if(u==fa[x])continue;
-		fa[u]=x;
-		int tmp=mx[x][0];
-		if(mx[u][0]+c==mx[x][0])tmp=mx[x][1];
-		Add(mx[u],tmp+c);
-		redfs(u);
+	void solve(int s,int t){
+		no=t;
+		memset(dis,-1,sizeof(dis));
+		mxdis=-1,dfs(s,0,0);
+		mxdis=-1,dfs(id,0,0);
+		mxdis=-1,dfs(id,0,0);
+		mndis=1e9;
+		for(int i=1;i<=n;i++)
+			if(dis[i]!=-1)mndis=min(mndis,dis[i]);
 	}
-}
-int solve(){
-	mi=2e9,zj=0;
-	fa[aa[ign]]=0;dfs(aa[ign]);redfs(aa[ign]);
-	int tmp=mi;mi=2e9;
-	int tmp2=zj;zj=0;
-	fa[bb[ign]]=0;dfs(bb[ign]);redfs(bb[ign]);
-	return max(tmp+mi+cc[ign],max(zj,tmp2));
-}
+}A,B,C;
 int main(){
 	scanf("%d",&n);
-	for(int i=1,a,b,c;i<n;i++){
+	for(int a,b,c,i=1;i<n;i++){
 		scanf("%d%d%d",&a,&b,&c);
-		Add(a,b,c);Add(b,a,c);
-		aa[i]=a;bb[i]=b;cc[i]=c;
+		add(a,b,c);add(b,a,c);
 	}
-	for(int i=1;i<n;i++){
-		ign=i;
-		ans=min(ans,solve());
+	A.solve(1,0);
+	int ans=1e9;
+	for(int i=A.id;A.fa[i];i=A.fa[i]){
+		B.solve(i,A.fa[i]);
+		C.solve(A.fa[i],i);
+		ans=min(ans,max(max(B.mxdis,C.mxdis),B.mndis+C.mndis+A.val[i]));
 	}
 	printf("%d\n",ans);
 	return 0;
