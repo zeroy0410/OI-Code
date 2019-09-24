@@ -1,46 +1,48 @@
-#include<bits/stdc++.h>
+#include<iostream>
+#include<cstdio>
+#include<climits>
+#include<algorithm>
+#include<cstring>
+#include<cmath>
 using namespace std;
-#pragma GCC optimize(3)
-const int M=5005;
-int n;
-int h[M],nx[M<<1],to[M<<1],v[M<<1],tot;
-void add(int a,int b,int c){
-	to[++tot]=b;v[tot]=c;
-	nx[tot]=h[a];h[a]=tot;
+#define ll long long
+ll mod=1000000007;
+int n,tot;
+char ss[105];
+ll f[105][105],g[105][105],tmp[105],c[105][105];
+int h[105],to[105],ne[105],sum[105];
+void add(int x,int y){tot++;to[tot]=y;ne[tot]=h[x];h[x]=tot;}
+void dfs(int x){
+	int l=x<<1,r=l|1;
+	if(l<=n)add(x,l);
+	if(r<=n)add(x,r);
+	int i,j,k;
+	g[x][1]=f[x][1]=sum[x]=1;
+	for(i=h[x];i;i=ne[i]){
+		dfs(to[i]);
+		for(j=1;j<=sum[x]+sum[to[i]];j++)tmp[j]=0;//临时数组
+		for(j=1;j<=sum[x];j++)
+			for(k=0;k<=sum[to[i]];k++){
+				if(ss[to[i]]=='>')
+					tmp[j+k]+=f[x][j]*g[to[i]][k]%mod
+						*c[j+k-1][j-1]%mod*c[sum[x]+sum[to[i]]-j-k][sum[x]-j]%mod;
+				else tmp[j+k]+=f[x][j]*(g[to[i]][sum[to[i]]]-g[to[i]][k]+mod)%mod
+					*c[j+k-1][j-1]%mod*c[sum[x]+sum[to[i]]-j-k][sum[x]-j]%mod;
+			}
+		sum[x]+=sum[to[i]];
+		for(j=1;j<=sum[x];j++)//前缀和
+			f[x][j]=tmp[j]%mod,g[x][j]=(g[x][j-1]+f[x][j])%mod;
+	}
 }
-struct Tree{
-	int fa[M],val[M],mxdis,mndis,dis[M],id,no;
-	void dfs(int x,int f,int d){
-		fa[x]=f;
-		dis[x]=max(dis[x],d);
-		if(mxdis<d)mxdis=d,id=x;
-		for(int i=h[x];i;i=nx[i])
-			if(to[i]!=f&&to[i]!=no)dfs(to[i],x,d+(val[to[i]]=v[i]));
-	}
-	void solve(int s,int t){
-		no=t;
-		memset(dis,-1,sizeof(dis));
-		mxdis=-1,dfs(s,0,0);
-		mxdis=-1,dfs(id,0,0);
-		mxdis=-1,dfs(id,0,0);
-		mndis=1e9;
-		for(int i=1;i<=n;i++)
-			if(dis[i]!=-1)mndis=min(mndis,dis[i]);
-	}
-}A,B,C;
 int main(){
-	scanf("%d",&n);
-	for(int a,b,c,i=1;i<n;i++){
-		scanf("%d%d%d",&a,&b,&c);
-		add(a,b,c);add(b,a,c);
+	int i,j,x=0,bj=2;
+	scanf("%d%s",&n,ss+2);
+	c[0][0]=1;
+	for(i=1;i<=n;i++){//组合数
+		c[i][0]=1;
+		for(j=1;j<=i;j++)
+			c[i][j]=(c[i-1][j]+c[i-1][j-1])%mod;
 	}
-	A.solve(1,0);
-	int ans=1e9;
-	for(int i=A.id;A.fa[i];i=A.fa[i]){
-		B.solve(i,A.fa[i]);
-		C.solve(A.fa[i],i);
-		ans=min(ans,max(max(B.mxdis,C.mxdis),B.mndis+C.mndis+A.val[i]));
-	}
-	printf("%d\n",ans);
+	dfs(1);printf("%lld",g[1][sum[1]]);
 	return 0;
 }
