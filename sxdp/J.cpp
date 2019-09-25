@@ -1,6 +1,5 @@
-#include<stdio.h>
+#include<cstdio>
 #include<algorithm>
-#include<string.h>
 #define M 1005
 using namespace std;
 const int mod=1e9+7;
