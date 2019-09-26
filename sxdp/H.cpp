@@ -1,59 +1,55 @@
 #include<cstdio>
+#include<string.h>
 #include<algorithm>
-#define LL long long
+#define M 1005
 using namespace std;
-LL mod=1e9+7;const int N=110;
-LL dp[N][N];LL c[N][N];
-LL siz[N];int n;LL res;
-char mde[N];
-void dfs(int x){
-	for(int v=2*x;v<=min(n,2*x+1);v++){
-		dfs(v);
-		if(mde[v]=='>'){
-			for(int k=siz[x]+siz[v];k>=1;k--){
-				LL sum=0;
-				for(int i=1;i<=min(siz[x],(LL)k);i++){
-					for(int j=k-i+1;j<=siz[v];j++){
-						LL a=(dp[x][i]*dp[v][j])%mod;
-						LL b=(c[i-1][k-1]*c[siz[x]-i][siz[x]+siz[v]-k])%mod;
-						a=(a*b)%mod;
-						sum=(sum+a)%mod;
-					}
-				}
-				dp[x][k]=sum;
+const int mod=1e9+7;
+int T,n,h[M],tt; struct edge{
+	int nxt,to,co;
+}G[M<<1];
+void Add(int a,int b,int c){
+	G[++tt]=(edge){h[a],b,c};
+	h[a]=tt;
+}
+void calc(int &x,int y){
+	x+=y;
+	if(x>=mod)x-=mod;
+}
+char S[M];
+int dp[M][M],C[M][M],sz[M],tmp[M];
+void dfs(int x,int f){
+	dp[x][1]=1;sz[x]=1;
+	for(int i=h[x];i;i=G[i].nxt){
+		int u=G[i].to,v=G[i].co;
+		if(u==f)continue;
+		dfs(u,x);
+		for(int a=1;a<=sz[x];a++){
+			for(int b=0;b<=sz[u];b++){
+				if(v)calc(tmp[a+b],1LL*dp[x][a]*dp[u][b]%mod*C[a+b-1][a-1]%mod*C[sz[x]+sz[u]-a-b][sz[x]-a]%mod);
+				else calc(tmp[a+b],1LL*dp[x][a]*(dp[u][sz[u]]-dp[u][b]+mod)%mod*C[a+b-1][a-1]%mod*C[sz[x]+sz[u]-a-b][sz[x]-a]%mod);
 			}
 		}
-		else{
-			for(int k=siz[x]+siz[v];k>=1;k--){
-				LL sum=0;
-				for(int i=1;i<=min(siz[x],(LL)k);i++){
-					for(int j=1;j<=min((LL)k-i,siz[v]);j++){
-						LL a=(dp[x][i]*dp[v][j])%mod;
-						LL b=(c[i-1][k-1]*c[siz[x]-i][siz[x]+siz[v]-k])%mod;
-						a=(a*b)%mod;sum=(sum+a)%mod;
-					}
-				}
-				dp[x][k]=sum;
-			}
-		}
-		siz[x]+=siz[v];
+		sz[x]+=sz[u];
+		for(int j=1;j<=sz[x];j++)dp[x][j]=tmp[j],tmp[j]=0;
 	}
+	for(int i=2;i<=sz[x];i++)calc(dp[x][i],dp[x][i-1]);
 }
 int main(){
+	C[0][0]=1;
+	for(int i=1;i<M;i++){
+		C[i][0]=1;
+		for(int j=1;j<=i;j++)
+			C[i][j]=(C[i-1][j]+C[i-1][j-1])%mod;
+	}
+	memset(h,0,sizeof(h));tt=0;
+	memset(dp,0,sizeof(dp));
 	scanf("%d",&n);
-	c[0][0]=1;
-	for(int i=1;i<=n;i++){
-		c[0][i]=1;c[i][i]=1;
-		for(int j=1;j<i;j++)
-			c[j][i]=(c[j][i-1]+c[j-1][i-1])%mod;
+	scanf("%s",S+2);
+	for(int i=2;i<=n;i++){
+		if(S[i]=='<')Add(i,i>>1,0),Add(i>>1,i,1);
+		else Add(i,i>>1,1),Add(i>>1,i,0);
 	}
-	scanf("%s",mde+2);
-	for(int i=1;i<=n;i++){
-		dp[i][1]=1;
-		siz[i]=1;
-	}
-	dfs(1);
-	for(int i=1;i<=n;i++)res=(res+dp[1][i])%mod;
-	printf("%lld",res);
+	dfs(1,0);
+	printf("%d\n",dp[1][n]);
 	return 0;
 }

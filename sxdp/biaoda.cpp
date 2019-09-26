@@ -1,48 +1,66 @@
-#include<iostream>
-#include<cstdio>
-#include<climits>
+#include<stdio.h>
+#include<string.h>
 #include<algorithm>
-#include<cstring>
-#include<cmath>
+#include<iostream>
+#define N 110000
+#define M 210000
 using namespace std;
-#define ll long long
-ll mod=1000000007;
-int n,tot;
-char ss[105];
-ll f[105][105],g[105][105],tmp[105],c[105][105];
-int h[105],to[105],ne[105],sum[105];
-void add(int x,int y){tot++;to[tot]=y;ne[tot]=h[x];h[x]=tot;}
-void dfs(int x){
-	int l=x<<1,r=l|1;
-	if(l<=n)add(x,l);
-	if(r<=n)add(x,r);
-	int i,j,k;
-	g[x][1]=f[x][1]=sum[x]=1;
-	for(i=h[x];i;i=ne[i]){
-		dfs(to[i]);
-		for(j=1;j<=sum[x]+sum[to[i]];j++)tmp[j]=0;//临时数组
-		for(j=1;j<=sum[x];j++)
-			for(k=0;k<=sum[to[i]];k++){
-				if(ss[to[i]]=='>')
-					tmp[j+k]+=f[x][j]*g[to[i]][k]%mod
-						*c[j+k-1][j-1]%mod*c[sum[x]+sum[to[i]]-j-k][sum[x]-j]%mod;
-				else tmp[j+k]+=f[x][j]*(g[to[i]][sum[to[i]]]-g[to[i]][k]+mod)%mod
-					*c[j+k-1][j-1]%mod*c[sum[x]+sum[to[i]]-j-k][sum[x]-j]%mod;
+int nxt[M<<1],to[M<<1],head[N],tot=1;
+int deep[N],fa[N],good[N],bad[N],gc,bc;
+bool vis[N];
+void add(int x,int y)
+{
+	to[++tot]=y;
+	nxt[tot]=head[x];
+	head[x]=tot;
+}
+void dfs(int x,int pre)
+{
+	deep[x]=deep[fa[x]]+1,vis[x]=1;
+	int i;
+	for(i=head[x];i;i=nxt[i])
+	{
+		if((i^1)==pre)	continue;
+		if(!vis[to[i]])
+		{
+			fa[to[i]]=x;
+			dfs(to[i],i);
+			good[x]+=good[to[i]];
+			bad[x]+=bad[to[i]];
+		}
+		else
+		{
+			if(deep[to[i]]>deep[x])	continue;
+			printf("%d %d %d\n",(deep[x]-deep[to[i]]&1),x,to[i]);
+			if(deep[x]-deep[to[i]]&1)
+				good[x]++,good[to[i]]--,gc++;
+			else {
+				bad[x]++,bad[to[i]]--,bc++;
 			}
-		sum[x]+=sum[to[i]];
-		for(j=1;j<=sum[x];j++)//前缀和
-			f[x][j]=tmp[j]%mod,g[x][j]=(g[x][j-1]+f[x][j])%mod;
+		}
 	}
 }
-int main(){
-	int i,j,x=0,bj=2;
-	scanf("%d%s",&n,ss+2);
-	c[0][0]=1;
-	for(i=1;i<=n;i++){//组合数
-		c[i][0]=1;
-		for(j=1;j<=i;j++)
-			c[i][j]=(c[i-1][j]+c[i-1][j-1])%mod;
+int main()
+{
+	int n,m,i,j,k,x,y,ans;
+	scanf("%d%d",&n,&m);
+	for(i=1;i<=m;i++)
+	{
+		scanf("%d%d",&x,&y);
+		add(x,y),add(y,x);
 	}
-	dfs(1);printf("%lld",g[1][sum[1]]);
+	for(i=1;i<=n;i++)
+	{
+		if(!vis[i])
+			dfs(i,0);
+	}
+	for(i=1,ans=0;i<=n;i++)
+	{
+		if(fa[i]&&bad[i]==bc&&!good[i])
+			ans++;
+	}
+	if(bc==1)
+		ans++;
+	printf("%d\n",ans);
 	return 0;
 }
