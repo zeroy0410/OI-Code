@@ -11,7 +11,11 @@ void Add(int a,int b,int c){
 	h[a]=tt;
 }
 void dfs(int x,int f){
-
+	for(int i=h[x];i;i=G[i].nxt){
+		int u=G[i].to;
+		if(u==f)continue;
+		dfs(u,x);
+	}
 }
 int main(){
 	scanf("%d%d",&n,&m);
@@ -19,6 +23,6 @@ int main(){
 		scanf("%d%d%d",&a,&b,&c);
 		Add(a,b,c);Add(b,a,c);
 	}
-
+	dfs(1,0);
 	return 0;
 }
