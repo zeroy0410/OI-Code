@@ -1,78 +1,50 @@
 #include<cstdio>
 #include<string.h>
 #include<algorithm>
-#define M 15
 #define LL long long
 using namespace std;
-int n,m,S,h[M],tt;
-struct edge{
-	int nxt,to,co;
-}G[M];
-void Add(int a,int b,int c){
-	G[++tt]=(edge){h[a],b,c};
-	h[a]=tt;
+int n,m,S,tt,base,inf;
+LL dp[13][1<<13],cnt[13][1<<13];
+int ct[1<<13],G[13][13],mx[1<<13];;
+LL dfs(int x,int s){
+	if(s==(1<<x))return cnt[x][s]=1,0;
+	if(dp[x][s]!=-1)return dp[x][s];
+	LL res=1e18;
+	int tmp=s^(1<<x)^mx[s^(1<<x)];
+	for(int i=tmp;;i=(i-1)&tmp){
+		i|=mx[s^(1<<x)];
+		for(int j=0;j<n;j++){
+			if(!(i&1<<j))continue;
+			if(G[x][j]==inf)continue;
+			LL now=dfs(x,s^i)+dfs(j,i)+S*((s^i)!=(1<<x)||(s==base))+1LL*ct[i]*G[x][j];
+			if(now<res)res=now,cnt[x][s]=cnt[x][s^i]*cnt[j][i];
+			else if(now==res)cnt[x][s]+=cnt[x][s^i]*cnt[j][i];
+		}
+		i^=mx[s^(1<<x)];
+		if(i==0)break;
+	}
+	return dp[x][s]=res;
 }
-struct node{
-	int a,b,c;
-}E[M*M];
-struct P30{
-	int cnt[1<<10],dis[6],in[6];
-	bool vis[10];
-	void dfs(int x,int f,int d){
-		dis[x]=d;vis[x]=1;
-		for(int i=h[x];i;i=G[i].nxt){
-			int u=G[i].to,v=G[i].co;
-			if(u==f||vis[u])continue;
-			dfs(u,x,d+v);
-		}
-	}
-	void solve(){
-		LL ans=1e18,ct=0;
-		for(int i=0;i<1<<m;i++){
-			int c=0;
-			for(int j=0;j<m;j++)
-				if(i&1<<j)c++;
-			if(c!=n-1)continue;
-			memset(h,0,sizeof(h));tt=0;
-			memset(in,0,sizeof(in));
-			for(int j=0;j<m;j++)
-				if(i&1<<j){
-					Add(E[j].a,E[j].b,E[j].c),Add(E[j].b,E[j].a,E[j].c);
-					in[E[j].a]++;in[E[j].b]++;
-				}
-			LL tmp=0;
-			for(int j=1;j<=n;j++)
-				if(in[j]==1)tmp+=S;
-			for(int j=1;j<=n;j++){
-				memset(vis,0,sizeof(vis));
-				if(j==1){
-					bool fl=1;
-					dfs(j,0,0);
-					for(int k=1;k<=n;k++)
-						if(!vis[k]){fl=0;break;}
-					if(!fl)break;
-				}
-				else dfs(j,0,0);
-				LL res=tmp;
-				for(int k=1;k<=n;k++)
-					res+=dis[k];
-				if(res<ans){
-					ans=res;
-					ct=1;
-				}
-				else if(res==ans)ct++;
-			}
-		}
-		printf("%lld %d\n",ans,ct);
-	}
-}p30;
 int main(){
-	freopen("buildroad.in","r",stdin);
-	freopen("buildroad.out","w",stdout);
-	scanf("%d%d%d",&n,&m,&S);
-	for(int i=0;i<m;i++){
-		scanf("%d%d%d",&E[i].a,&E[i].b,&E[i].c);
+	scanf("%d%d%d",&n,&m,&S);base=(1<<n)-1;
+	memset(dp,-1,sizeof(dp));
+	memset(cnt,0,sizeof(cnt));
+	for(int i=1;i<=base;i++)ct[i]=ct[i>>1]+(i&1);
+	for(int i=0;i<=base;i++)
+		for(int j=0;j<n;j++)
+			if(i&1<<j)mx[i]=1<<j;
+	memset(G,60,sizeof(G));inf=G[0][0];
+	for(int i=1,a,b,c;i<=m;i++){
+		scanf("%d%d%d",&a,&b,&c);
+		a--;b--;
+		G[a][b]=G[b][a]=min(G[a][b],c);
 	}
-	if(n<=5)p30.solve();
+	LL ans=1e18,tot=0;
+	for(int i=0;i<n;i++){
+		LL res=dfs(i,base);
+		if(res<ans)ans=res,tot=cnt[i][base];
+		else if(res==ans)tot+=cnt[i][base];
+	}
+	printf("%lld %lld\n",ans+S,tot);
 	return 0;
 }
