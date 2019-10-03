@@ -7,7 +7,7 @@ int n,K,h[M],tt,A[M];
 int stk[M],top;
 int ch[M][2],rt,sz[M];
 LL dp[M][M>>1];
-LL fac[M],Ifac[M];
+LL fac[M*M],Ifac[M*M];
 LL qkpow(LL a,LL b){
 	LL res=1;
 	while(b){
@@ -19,8 +19,8 @@ LL qkpow(LL a,LL b){
 }
 void Init(){
 	fac[0]=1;Ifac[0]=Ifac[1]=1;
-	for(int i=1;i<M;i++)fac[i]=1LL*fac[i-1]*i%mod;
-	for(int i=2;i<M;i++)Ifac[i]=1LL*Ifac[i-1]*qkpow(i,mod-2)%mod;
+	for(int i=1;i<M*M;i++)fac[i]=1LL*fac[i-1]*i%mod;
+	for(int i=2;i<M*M;i++)Ifac[i]=1LL*Ifac[i-1]*qkpow(i,mod-2)%mod;
 }
 LL C(LL x,LL y){
 	if(x<y)return 0;

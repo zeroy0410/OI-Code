@@ -40,7 +40,6 @@ void DFS(int x,int fa){
             dp[x][i+j]=(dp[x][i+j]+dp[x][i]*C(size[x]-i,j)%MOD*C(cha,j)%MOD*frac[j]%MOD)%MOD;
         }
     }
-	cout<<x<<' '<<size[x]<<endl;
 }
 void init(){
     frac[0]=infr[0]=1;
@@ -63,6 +62,6 @@ signed main() {
         Q[++tail]=i;
     }
     DFS(rt,0);
-    printf("%lld",dp[rt][K]);
+    printf("%lld\n",dp[rt][K]);
     return 0;
 }
