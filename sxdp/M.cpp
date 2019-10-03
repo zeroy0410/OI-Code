@@ -19,12 +19,12 @@ LL qkpow(LL a,LL b){
 }
 void Init(){
 	fac[0]=1;Ifac[0]=Ifac[1]=1;
-	for(int i=1;i<M*M;i++)fac[i]=1LL*fac[i-1]*i%mod;
-	for(int i=2;i<M*M;i++)Ifac[i]=1LL*Ifac[i-1]*qkpow(i,mod-2)%mod;
+	for(int i=1;i<M*M;i++)fac[i]=fac[i-1]*i%mod;
+	for(int i=2;i<M*M;i++)Ifac[i]=Ifac[i-1]*qkpow(i,mod-2)%mod;
 }
 LL C(LL x,LL y){
 	if(x<y)return 0;
-	return fac[x]*fac[y]%mod*Ifac[x-y]%mod;
+	return fac[x]*Ifac[y]%mod*Ifac[x-y]%mod;
 }
 void Add(LL &x,LL y){
 	x+=y;
