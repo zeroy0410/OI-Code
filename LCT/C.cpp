@@ -2,7 +2,7 @@
 #define M 10005
 using namespace std;
 struct LCT{
-	//ÔÚLCTÖÐfa¿ÉÒÔ±íÊ¾Çá±ß£¬ch±íÊ¾µÄÊÇÖØ±ß 
+	//ï¿½ï¿½LCTï¿½ï¿½faï¿½ï¿½ï¿½Ô±ï¿½Ê¾ï¿½ï¿½ß£ï¿½chï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½Ø±ï¿½ 
 	int ch[M][2],val[M],fa[M];
 	bool mark[M];
 	int stk[M],top;
@@ -35,27 +35,27 @@ struct LCT{
 			rotate(x);
 		}
 	}
-	void access(int x){//½«xµ½¸ùµÄÂ·¾¶×ª»¯ÎªÒ»Ìõsplay 
+	void access(int x){//ï¿½ï¿½xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½×ªï¿½ï¿½ÎªÒ»ï¿½ï¿½splay 
 		for(int y=0;x;y=x,x=fa[x])
 			splay(x),ch[x][1]=y;
 	}
-	void makeroot(int x){//½«x×ª»¯ÎªÔ­Ê÷µÄ¸ù
+	void makeroot(int x){//ï¿½ï¿½x×ªï¿½ï¿½ÎªÔ­ï¿½ï¿½ï¿½Ä¸ï¿½
 		access(x);splay(x);
 		mark[x]^=1;
 	}
-	int findroot(int x){//Ñ°ÕÒxËùÔÚ×ÓÊ÷µÄ¸ù 
+	int findroot(int x){//Ñ°ï¿½ï¿½xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½ 
 		access(x),splay(x),down(x);
 		while(ch[x][0])down(x=ch[x][0]);
 		splay(x);return x;	
 	}
-	void split(int x,int y){//½«x--yµÄÂ·¾¶À­³öÀ´×÷ÎªÒ»¸ösplay 
+	void split(int x,int y){//ï¿½ï¿½x--yï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎªÒ»ï¿½ï¿½splay 
 		makeroot(x);access(y);splay(y);	
 	}
-	void link(int x,int y){//Á¬Ò»ÌõÇá±ß 
+	void link(int x,int y){//ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ 
 		makeroot(x);
 		if(findroot(y)!=x)fa[x]=y;	
 	}
-	void cut(int x,int y){//½«x--yÖ®¼äµÄ±ß¶Ï¿ª
+	void cut(int x,int y){//ï¿½ï¿½x--yÖ®ï¿½ï¿½Ä±ß¶Ï¿ï¿½
 		makeroot(x);
 		if(findroot(y)==x&&fa[y]==x&&!ch[y][0])
 			fa[y]=ch[x][1]=0;
