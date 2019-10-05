@@ -83,21 +83,7 @@ struct Pm1{
 	}
 }pm1;
 struct P100{
-	bool sw;
-	void solve(){
-		sw=0;
-		if(n<m){swap(n,m);sw=1;}
-		for(int i=0;i<n/2;i++){
-			for(int j=0;j<m/2;j++)
-				S[i][j]='(';
-			for(int j=m/2;j<m;j++)
-				S[i][j]=')';
-		}
-		for(int i=n/2;i<n;i++){
-			for(int j=0;j<m;j++)
-				if(j&1)S[i][j]=')';
-				else S[i][j]='(';
-		}
+	void out(int sw){
 		if(!sw){
 			for(int i=0;i<n;i++){
 				for(int j=0;j<m;j++)
@@ -112,6 +98,43 @@ struct P100{
 				puts("");
 			}
 		}
+	}
+	bool sw;
+	void solve2(){
+		S[0][0]=S[n-1][m-1]=S[0][m-1]=S[n-1][0]='(';
+		for(int i=0;i<m;i++){
+			S[0][i]='(';S[n-1][i]=')';
+		}
+		for(int i=0;i<n;i++){
+			S[i][0]='(';S[i][m-1]=')';
+		}
+		for(int i=1;i<n-1;i++){
+			for(int j=1;j<m-1;j++){
+				if((i+j)&1)S[i][j]=')';
+				else S[i][j]='(';
+			}
+		}
+		out(sw);
+	}
+	void solve1(){
+		for(int i=0;i<n/2;i++){
+			for(int j=0;j<m/2;j++)
+				S[i][j]='(';
+			for(int j=m/2;j<m;j++)
+				S[i][j]=')';
+		}
+		for(int i=n/2;i<n;i++){
+			for(int j=0;j<m;j++)
+				if(j&1)S[i][j]=')';
+				else S[i][j]='(';
+		}
+		out(sw);
+	}
+	void solve(){
+		sw=0;
+		if(n<m){swap(n,m);sw=1;}
+		if(n+m/2-1>n+m-4)solve1();
+		else solve2();
 	}
 }p100;
 int main(){
