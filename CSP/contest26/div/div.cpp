@@ -43,13 +43,14 @@ struct P1{
         for(int i=1;i<=m;i++)st[i]=1;
         for(int i=1;i<=m;i++){
             for(int j=1;j<=pc;j++){
+//				if(i==136)cout<<B[i]<<' '<<pri[j]<<endl;
                 if(B[i]%pri[j]==0){
                     int c=0;
                     while(B[i]%pri[j]==0){
                         c++;
                         B[i]/=pri[j];
                     }
-                    while(ca[j].size()<c+1)ca[j].push_back(em);
+                    while((int)ca[j].size()<c+1)ca[j].push_back(em);
                     ca[j][c][i]=1;
                 }
                 if(B[i]==1)break;
@@ -78,8 +79,9 @@ struct P1{
             }
             ans[tmp.count()]++;
         }
+		if(n>mx)ans[0]+=n-mx;
         for(it=mp.begin();it!=mp.end();it++)
-            ans[it->second]++;
+            ans[it->second]++,ans[0]--;
         for(int i=0;i<=m;i++)
             printf("%d\n",ans[i]);
     }
@@ -90,6 +92,7 @@ int main(){
     freopen("div.out","w",stdout);
     scanf("%d%d",&n,&m);
     for(int i=1;i<=m;i++)scanf("%d",&A[i]);
-    p1.solve();
+    if(n<=1000&&m<=200)p0.solve();
+	else p1.solve();
     return 0;
 }
