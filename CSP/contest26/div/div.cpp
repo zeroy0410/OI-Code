@@ -32,7 +32,7 @@ struct P1{
     int ct[mx+5],ans[205];
     map<int,int>mp;
     map<int,int>::iterator it;
-    vector<bitset<205>>ca[10005];
+    vector<bitset<205> >ca[10005];
     bitset<205>tmp;
     bitset<205>st;
     bitset<205>em;

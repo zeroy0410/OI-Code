@@ -1,4 +1,5 @@
 #include<bits/stdc++.h>
+#pragma GCC optimize(3)
 #define M 100005
 using namespace std;
 int n,m,h[M],tt;
@@ -40,7 +41,7 @@ int dis(int u,int v){
 	return dep[u]+dep[v]-2*dep[LCA(u,v)];
 }
 struct node{ int u,v; };
-vector<node>wk[M];
+vector<node>wk[M<<2];
 node now[M];
 int Fa[M],ans[M],Dep[M],Top;
 int getfa(int x){return Fa[x]==x?x:getfa(Fa[x]);}
@@ -95,8 +96,6 @@ void Work(int p,int l,int r,int res){
 	del(tmp);
 }
 int main(){
-	freopen("speed.in","r",stdin);
-	freopen("speed.out","w",stdout);
 	scanf("%d%d",&n,&m);Top=0;
 	for(int i=1,u,v,l,r;i<n;i++){
 		scanf("%d%d%d%d",&u,&v,&l,&r);
