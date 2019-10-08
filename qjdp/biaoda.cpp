@@ -1,34 +1,37 @@
-#include <cstdio>
-#include <cstring>
-#include <iostream>
-#include <algorithm>
-#define M 3030
+#include<cstring>
+#include<cstdio>
+#include<algorithm>
+#include<cstring>
+#include<queue>
+#include<vector>
+#define N 55
+#define For(i,a,b) for(int i=a;i<=b;i++)
 using namespace std;
-int n,p,a[M];
-long long f[M][2][2];
+
+int n,color[N],nxt[N],dp[N][N],v[N];
+
+int f(int x){return x*x;}
+void dfs(int l,int r,int color_sum,int &ans,int sum_dp)
+{
+    ans=f(color_sum)+dp[l+1][r]+sum_dp;int t=0;
+    for(int j=nxt[l];j&&j<=r;j=nxt[j])
+    {   
+        dfs(j,r,color_sum+v[j],t,sum_dp+dp[l+1][j-1]);
+        ans=max(ans,t);
+    }
+
+}
 int main()
 {
-    int i,j;
-    cin>>n>>p;
-    for(i=1;i<=n;i++)
-        scanf("%d",&a[i]);
-    a[++n]=p;
-    sort(a+1,a+n+1);
-    p=lower_bound(a+1,a+n+1,p)-a;
-    memset(f,0x3f,sizeof f);
-    f[p][1][0]=f[p][1][1]=0;
-    for(j=2;j<=n;j++)
-    {
-        for(i=1;i<=n;i++)
-            f[i][j&1][0]=f[i][j&1][1]=0x3f3f3f3f;
-        for(i=max(p-j+1,1);i<=min(p,n-j+1);i++)
-        {
-            if(i!=p)
-                f[i][j&1][0]=min(f[i+1][~j&1][0]+(n-j+1)*abs(a[i]-a[i+1]),f[i+1][~j&1][1]+(n-j+1)*abs(a[i]-a[i+j-1]));
-            if(i!=p-j+1)
-                f[i][j&1][1]=min(f[i][~j&1][0]+(n-j+1)*abs(a[i]-a[i+j-1]),f[i][~j&1][1]+(n-j+1)*abs(a[i+j-2]-a[i+j-1]));
-        }
-    }
-    cout<<min(f[1][n&1][0],f[1][n&1][1])<<endl;
-    return 0;
+    scanf("%d",&n);
+    For(i,1,n)scanf("%d",&color[i]);
+    For(i,1,n)scanf("%d",&v[i]);
+    For(i,1,n)For(j,i+1,n)
+    if(color[j]==color[i]){nxt[i]=j;break;}
+    For(i,1,n)dp[i][i]=v[i]*v[i];
+    For(k,1,n)
+        For(i,1,n-k)
+            dfs(i,i+k,v[i],dp[i][i+k],0);
+    printf("%d",dp[1][n]);
+
 }
