@@ -1,37 +1,34 @@
-#include<cstring>
-#include<cstdio>
-#include<algorithm>
-#include<cstring>
-#include<queue>
-#include<vector>
-#define N 55
-#define For(i,a,b) for(int i=a;i<=b;i++)
+#include <bits/stdc++.h>
 using namespace std;
-
-int n,color[N],nxt[N],dp[N][N],v[N];
-
-int f(int x){return x*x;}
-void dfs(int l,int r,int color_sum,int &ans,int sum_dp)
-{
-    ans=f(color_sum)+dp[l+1][r]+sum_dp;int t=0;
-    for(int j=nxt[l];j&&j<=r;j=nxt[j])
-    {   
-        dfs(j,r,color_sum+v[j],t,sum_dp+dp[l+1][j-1]);
-        ans=max(ans,t);
-    }
-
+#define N 2005
+int A[N],dp[N][N],head[N],tail[N],Q[N][N];
+int Calc_1(int l,int r) {
+	return dp[l][r-1] + A[r];
 }
-int main()
-{
-    scanf("%d",&n);
-    For(i,1,n)scanf("%d",&color[i]);
-    For(i,1,n)scanf("%d",&v[i]);
-    For(i,1,n)For(j,i+1,n)
-    if(color[j]==color[i]){nxt[i]=j;break;}
-    For(i,1,n)dp[i][i]=v[i]*v[i];
-    For(k,1,n)
-        For(i,1,n-k)
-            dfs(i,i+k,v[i],dp[i][i+k],0);
-    printf("%d",dp[1][n]);
+int Calc_2(int l,int r) {
+	return dp[l+1][r] + A[l];
+}
+int main() {
+	int n;
+	cin >> n;
+	for(int i=1; i<=n; i++) scanf("%d",&A[i]);
+	memset(dp,61,sizeof(dp));
+	for(int i=n; i>=1; i--) {
+		dp[i][i] = A[i];
+		head[0] = 1,tail[0] = 0;
+		for(int j=i+1; j<=n; j++) {
+			while(head[0] <= tail[0] && Calc_1(i,Q[0][head[0]]) < Calc_2(Q[0][head[0]],j)) head[0] ++;
+			while(head[0] <= tail[0] && Calc_1(i,j) < Calc_1(i,Q[0][tail[0]])) tail[0] --;
+			Q[0][++tail[0]] = j;
 
+			while(head[j] <= tail[j] && Calc_2(Q[j][head[j]],j) < Calc_1(i,Q[j][head[j]])) head[j] ++;
+			while(head[j] <= tail[j] && Calc_2(i,j) < Calc_2(Q[j][tail[j]],j)) tail[j] --;
+			Q[j][++tail[j]] = i;
+			
+			dp[i][j] = min(Calc_1(i,Q[0][head[0]]),Calc_2(Q[j][head[j]] ,j ) );
+		}
+	}
+
+	cout << dp[1][n] << endl;
+	return 0;
 }
