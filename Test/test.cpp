@@ -2,54 +2,31 @@
 #define M 100005
 #define LL long long
 using namespace std;
-int n;
-LL A[M],B[M];
-LL K,sum;
-LL calc(int x){
-	if(x<1||x>n)return 1e18;
-	LL res=K;
-	for(int i=1;i<=n;i++)B[i]=A[i];
-	LL mx=-2e9,mi=2e9;
-	for(int i=1;i<x;i++){
-		LL ned=abs(B[i]-B[x]);
-		if(res<ned){
-			if(i<x)B[i]+=res;
-			else B[i]-=res;
-			res=0;
-		}
-		else res-=ned,B[i]=B[x];
-		mi=min(mi,B[i]);
-		mx=max(mx,B[i]);
-	}
-	for(int i=n;i>x;i--){
-		LL ned=abs(B[i]-B[x]);
-		if(res<ned){
-			if(i<x)B[i]+=res;
-			else B[i]-=res;
-			res=0;
-		}
-		else res-=ned,B[i]=B[x];
-		mi=min(mi,B[i]);
-		mx=max(mx,B[i]);
-	}
-	return mx-mi;
-}
+int n,A[M];LL K,sum[M];
+LL S(int l,int r){return sum[r]-sum[l-1];}
+LL calc(int j){ return S(j,n)-1LL*(n-j+1)*A[j]; }
+LL calc2(int i){return 1LL*i*A[i]-S(1,i);}
 int main(){
 	scanf("%d%lld",&n,&K);
-	for(int i=1;i<=n;i++)scanf("%lld",&A[i]),sum+=A[i];
+	for(int i=1;i<=n;i++)scanf("%d",&A[i]);
 	sort(A+1,A+n+1);
-	int l=1,r=n,ans=-1;
-	while(l<=r){
-		int mid=(l+r)>>1;
-		LL t1=calc(mid),t2=calc(mid+1),t3=calc(mid-1);
-		if(t1<=t2&&t1<=t3){
-			ans=mid;
-			break;
-		}
-		else if(t1>t2)l=mid+1;
-		else r=mid-1;
+	for(int i=1;i<=n;i++)sum[i]=sum[i-1]+A[i];
+	int cur=n;
+	LL ans=1e18;
+	for(int i=1;i<=n;i++){
+		LL ned=calc2(i);
+		if(ned>K)break;
+		while(ned+calc(cur-1)<=K)cur--;
+		while(ned+calc(cur)>K)cur++;
+		LL res=K-ned-calc(cur);
+		LL tmp=A[cur]-A[i];
+		if(calc2(i+1)-calc2(i)<=res)continue;
+		if(i<n-cur+1)tmp-=res/i;
+		else tmp-=res/(n-cur+1);
+		tmp=max(tmp,0LL);
+		ans=min(ans,tmp);
 	}
-	LL as=calc(ans);
-	cout<<as<<endl;
+	if(ans==1e18)ans=0;
+	printf("%lld\n",ans);
 	return 0;
 }

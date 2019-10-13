@@ -1,25 +1,24 @@
 #include<bits/stdc++.h>
-#define M 400005
-long long dp[1<<20],res;
-int n,A[M],cnt[20],sum[20][20];
-int main(){
-	scanf("%d%*d",&n);
-	memset(dp,60,sizeof dp);dp[0]=0;
-	for(int i=1;i<=n;i++)
-		scanf("%d",&A[i]),A[i]--;
-	for(int i=1;i<=n;i++){
-		for(int j=0;j<20;j++)
-			sum[A[i]][j]+=cnt[j];
-		cnt[A[i]]++;
+#define For(a,b,c) for(int a=b;a<=c;++a)
+#define Dor(a,b,c) for(int a=b;a>=c;--a)
+#define LL long long
+using namespace std;
+const int N=100007;
+int n;
+LL k,A[N];
+int main() {
+	scanf("%d%lld",&n,&k);
+	For(i,1,n) scanf("%lld",&A[i]);
+	sort(A+1,A+1+n);
+	for(int i;i>=1,n>>1) {
+		int j=n-i+1;
+		LL x=(A[i+1]-A[i]+A[j]-A[j-1])*i;
+		if(x<=k) k-=x;
+		else {
+			printf("%lld",A[j]-A[i]-k/i);
+			return 0;
+		}
 	}
-	for(int i=0;i<(1<<20);i++)
-		for(int j=0;j<20;j++)
-			if(!(i&(1<<j))){
-				res=0;
-				for(int k=0;k<20;k++)
-					if(i&(1<<k))res+=sum[k][j];
-				dp[i|(1<<j)]=std::min(dp[i|(1<<j)],res+dp[i]);
-			}
-	printf("%lld\n",dp[(1<<20)-1]);
+	puts("0");
 	return 0;
 }
