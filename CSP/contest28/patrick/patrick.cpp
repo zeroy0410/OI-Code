@@ -5,29 +5,12 @@ int n,m,A[M];
 int ans=0;
 struct BIT{
 	int C[M<<1];
-	void Add(int x,int d){
-		x++;
-		while(x<(M<<1)){
-			C[x]+=d;
-			x+=(x&-x);
-		}
-	}
-	int sum(int x){
-		int res=0; x++;
-		while(x){
-			res+=C[x];
-			x-=(x&-x);
-		}
-		return res;
-	}
-	void update(int l,int r,int d){
-		Add(l,d);Add(r+1,-d);
-	}
+	void Add(int x,int d){ x++; while(x<(M<<1)){ C[x]+=d; x+=(x&-x); } }
+	int sum(int x){ int res=0; x++; while(x){ res+=C[x]; x-=(x&-x); } return res; }
+	void update(int l,int r,int d){ Add(l,d);Add(r+1,-d); }
 }Tr;
 char op[15];
 int main(){
-	freopen("patrick.in","r",stdin);
-	freopen("patrick.out","w",stdout);
 	scanf("%d%d",&n,&m);
 	for(int i=1;i<=n;i++)
 		scanf("%d",&A[i]);
