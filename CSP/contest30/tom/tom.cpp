@@ -30,8 +30,6 @@ void dfs(int x,int f){
 queue<int>Q;
 int ans[M];
 int main(){
-	freopen("tom.in","r",stdin);
-	freopen("tom.out","w",stdout);
 	scanf("%d%d%d",&n,&A,&B);
 	for(int i=1,a,b;i<n;i++){
 		scanf("%d%d",&a,&b);
