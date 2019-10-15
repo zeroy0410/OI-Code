@@ -1,57 +1,29 @@
-#include <iostream>
-#include <cstdio>
-#define re register//优化
-namespace cz//自定义double类型的max函数
-{
-    double max(double x,double y)
-    {
-        return x>y?x:y;
-    }
-}
+#include<iostream>
+#include<cstdio>
 using namespace std;
-int n,k,maxs,p[18],need[18];//need[i]是吃第i个宝物所需要吃的宝物
-double dp[105][1<<15];
-inline int read()//速读不说
-{
-    int x=0,f=1;
-    char ch=getchar();
-    while(ch<'0'||ch>'9')
-    {
-        if(ch=='-')
-            f=-1;
-        ch=getchar();
-    }
-    while(ch>='0'&&ch<='9')
-    {
-        x=(x<<3)+(x<<1)+ch-'0';
-        ch=getchar();
-    }
-    return x*f;
-}
+const int mod=1000000007;
+int n,m,p,temp,f[35][35][(1<<9)+5][9];
 int main()
 {
-    k=read(),n=read();
-    for(re int i=1;i<=n;i++)
-    {
-        p[i]=read();
-        int u;
-        while(scanf("%d",&u)&&u)//输入吃第i个宝物所需的宝物
-            need[i]|=(1<<(u-1));
-    }
-    maxs=(1<<n)-1;//最大状态是全选
-    for(re int i=k;i>=1;i--)//逆推
-        for(re int s=0;s<=maxs;s++)//循环枚举状态
-        {
-            for(re int j=1;j<=n;j++)
-            {
-                if((need[j]&s)==need[j])//若能选宝物
-                    dp[i][s]+=cz::max(dp[i+1][s],dp[i+1][s|(1<<(j-1))]+p[j]);
-                else//若不能选宝物
-                    dp[i][s]+=dp[i+1][s];
-            }
-            dp[i][s]/=n;//每个宝物被选中的概率为1/n
-			cout<<i<<' '<<s<<' '<<dp[i][s]<<endl;
-        }
-    printf("%.6lf",dp[1][0]);
+    scanf("%d%d%d",&n,&m,&p);
+    temp=(1<<(p+1))-1;
+    f[1][0][0][0]=1;
+    for(int i=1;i<=n;i++)
+     for(int j=0;j<=m;j++) 
+      for(int k=0;k<=temp;k++)
+      {
+        for(int l=0;l<p;l++)
+          if(f[i][j][k][l])
+          {
+            f[i][j][k][l+1]=(f[i][j][k][l+1]+f[i][j][k][l])%mod;
+            if(j+1<=m&&i-p+l>=1)
+              f[i][j+1][k^(1<<p)^(1<<l)][l]=(f[i][j+1][k^(1<<p)^(1<<l)][l]+f[i][j][k][l])%mod;
+          }
+        if((!(k&1))&&f[i][j][k][p])
+           f[i+1][j][k>>1][0]=f[i][j][k][p]%mod;
+      }
+    printf("%d",f[n+1][m][0][0]);
     return 0;
 }
+
+road
