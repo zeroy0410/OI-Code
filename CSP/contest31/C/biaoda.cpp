@@ -8,8 +8,6 @@ bool cmp(int a,int b) {
 	return p[a]<p[b];
 }
 int main() {
-	freopen("bug.in","r",stdin);
-	freopen("bug.out","w",stdout);
 	scanf("%d",&n);
 	for(int i=1; i<=n; i++) {
 		scanf("%d%d%d",&p[i],&l[i],&r[i]);
@@ -39,7 +37,8 @@ int main() {
 		for(int j=1;j<=q;j++)dp[i][j]=max(dp[i][j-1],max(dp[i][j],dp[i-1][j]));
 	}
 	for(int i=1;i<=n;i++)
-		for(int j=1; j<=q; j++)ans=max(ans,dp[i][j]);
+		for(int j=1; j<=q; j++)
+			ans=max(ans,dp[i][j]);
 	printf("%lld\n",ans);
 	return 0;
 }
