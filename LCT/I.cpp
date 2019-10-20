@@ -4,12 +4,14 @@ using namespace std;
 int n,m,A[M];
 struct LCT{
 	int ch[M][2],fa[M];
+	dasdas
 	bool isrt(int x){return ch[fa[x]][0]!=x&&ch[fa[x]][1]!=x;}
 	void rotate(int x){
 		int y=fa[x],z=fa[y],k=ch[y][1]==x;
 		if(!isrt(y))ch[z][ch[z][1]==y]=x;fa[x]=z;
 		ch[y][k]=ch[x][!k];fa[ch[x][!k]]=y;
 		ch[x][!k]=y;fa[y]=x;
+		dasds
 	}
 	void splay(int x){
 		while(!isrt(x)){
