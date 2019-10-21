@@ -49,6 +49,7 @@ struct P60{
 				mi=min(B[j],mi);
 			}
 		}
+		for(int i = 1; i <= n; i++) printf("%lld\n", dp[i]);
 		LL ans=0;
 		for(int i=2;i<=n;i++){
 			Add(ans,dp[i]*(((n-i)&1)?-1:1));
@@ -98,10 +99,10 @@ struct P100{
 	}
 }p100;
 int main(){
-	freopen("candy.in","r",stdin);
-	freopen("candy.out","w",stdout);
+//	freopen("candy.in","r",stdin);
+//	freopen("candy.out","w",stdout);
 	scanf("%d",&n);
 	for(int i=1;i<=n;i++)scanf("%d",&A[i]);
-	p100.solve();
+	p60.solve();
 	return 0;
 }

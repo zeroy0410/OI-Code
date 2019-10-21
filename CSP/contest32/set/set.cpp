@@ -1,77 +1,50 @@
 #include<bits/stdc++.h>
+#define M 300005
 using namespace std;
+bool vis[M][20];
 int n,m,K;
-struct P10{
-	int mark;
-	void solve(){
-		for(int i=1,x;i<=m;i++){
-			scanf("%d",&x);
-			mark|=1<<x;
-		}
-		for(int i=1;i<1<<n;i++){
-			if(mark&1<<i){
-				for(int j=1;j<i;j++)
-					if(mark&1<<j)
-						mark|=(1<<(i|j));
-			}
-		}
-		for(int i=1;i<1<<(1<<n);i++){
-			int ct=0;
-			for(int j=1;j<1<<n;j++)
-				if(i&1<<j)ct++;
-			if(ct==K){
-				bool fl=0;
-				for(int j=1;j<1<<n;j++){
-					if(!(i&1<<j))continue;
-					for(int k=1;k<1<<n;k++){
-						if(!(i&1<<k))continue;
-						if(!(i&1<<(j|k))){fl=1;break;}
-					}
-					if(fl)break;
-				}
-				if(fl)continue;
-				if((i&mark)==mark){
-					for(int j=1;j<1<<n;j++){
-						if(i&1<<j)printf("1");
-						else printf("0");
-					}
-					return;
-				}
-			}
-		}
-		puts("-1");
-	}
-}p10;
-struct Pm0{
-	bool mark[1<<18];
-	int tmp;
-	void solve(){
-		if(m==1)scanf("%d",&tmp);
-		for(int i=0;i<n;i++){
-			if(K&1<<i)
-				mark[1<<(n-i-1)]=1;
-		}
-		if(m==1&&!mark[tmp&-tmp]){
-			puts("-1");
-			return;
-		}
-		for(int i=1;i<1<<n;i++){
-			if(mark[(i&-i)])
-				printf("1");
-			else printf("0");
-		}
-		puts("");
-	}
-}pm0;
-struct P100{
-
-}p100;
+int dp[M],cnt[M],rk[M],tot,base;
 int main(){
-//	freopen("set.in","r",stdin);
-//	freopen("set.out","w",stdout);
+	//	freopen("set.in","r",stdin);
+	//	freopen("set.out","w",stdout);
 	scanf("%d%d%d",&n,&m,&K);
-	if(n<=4)p10.solve();
-	else if(m==0||m==1)pm0.solve();
-	else puts("-1");
+	for(int i=1,x;i<=m;i++){
+		scanf("%d",&x);
+		for(int j=0;j<n;j++)
+			if(x&1<<j)
+				vis[x][j]=1;
+	}
+	for(int i=0;i<n;i++)
+		for(int j=0;j<1<<n;j++)
+			if(vis[j][i])
+				for(int k=0;k<n;k++)
+					if(!(j&1<<k))
+						vis[j|1<<k][i]=1;
+	memset(dp,-1,sizeof(dp));dp[0]=0;
+	for(int i=0;i<1<<n;i++){
+		cnt[i]=cnt[i>>1]+(i&1);
+		if(dp[i]!=-1){
+			for(int j=0;j<n;j++){
+				if(!(i&1<<j)){
+					if(!(K&1<<cnt[i])&&vis[i|1<<j][j])continue;
+					dp[i|1<<j]=j;
+				}
+			}
+		}
+	}
+	if(dp[(1<<n)-1]==-1){puts("-1");return 0;}
+	tot=n-1;base=(1<<n)-1;
+	while(base){
+		rk[dp[base]]=tot--;
+		base^=(1<<dp[base]);
+	}
+	base=(1<<n)-1;
+	for(int i=1;i<=base;i++){
+		tot=0;
+		for(int j=0;j<n;j++)
+			if(i&1<<j)
+				tot=max(tot,rk[j]);
+		printf("%d",(K&1<<tot)>0);
+	}
 	return 0;
 }
