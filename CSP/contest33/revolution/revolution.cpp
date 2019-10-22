@@ -1,43 +1,13 @@
 #include<bits/stdc++.h>
 #define M 2005
+#define LL long long
 using namespace std;
 const int mod=998244353;
 int n,p[M][5],w[5][5];
-struct P10{
-	int ans[M];
-	void solve(){
-		for(int i=0;i<1<<n;i++){
-			int res=1,c1=0,c2=0;
-			for(int j=0;j<n;j++){
-				if(i&1<<j){
-					c1++;
-					res=1LL*res*p[j+1][1]%mod;
-				}
-				else {
-					c2++;
-					res=1LL*res*p[j+1][2]%mod;
-				}
-			}
-			int id=1;
-			if(c2>c1)swap(c1,c2),id=2;
-			if(c1>n/2){
-				for(int j=0;j<n;j++){
-					int pc=0;
-					if(i&1<<j)
-						pc=w[id][1];
-					else 
-						pc=w[id][2];
-					ans[j]=(ans[j]+1LL*pc*res%mod)%mod;
-				}
-			}
-		}
-		for(int i=0;i<n;i++)
-			printf("%d\n",ans[i]);
-	}
-}p10;
+LL pre[M][M],las[M][M],ans[M];
 int main(){
-	freopen("revolution.in","r",stdin);
-	freopen("revolution.out","w",stdout);
+	//	freopen("revolution.in","r",stdin);
+	//	freopen("revolution.out","w",stdout);
 	scanf("%d",&n);
 	for(int i=1;i<=n;i++){
 		for(int j=1;j<=4;j++)
@@ -46,6 +16,29 @@ int main(){
 	for(int i=1;i<=4;i++)
 		for(int j=1;j<=4;j++)
 			scanf("%d",&w[i][j]);
-	if(n<=10)p10.solve();
+	for(int mx=1;mx<=4;mx++){
+		memset(pre,0,sizeof(pre));
+		memset(las,0,sizeof(las));
+		pre[0][0]=1;las[n+1][0]=1;
+		for(int i=1;i<=n;i++)
+			for(int j=0;j<=i;j++){
+				if(j==0)pre[i][j]=(pre[i-1][j]*(1-p[i][mx])%mod+mod)%mod;
+				else pre[i][j]=((pre[i-1][j-1]*p[i][mx]%mod+pre[i-1][j]*(1-p[i][mx])%mod)%mod+mod)%mod;
+			}
+		for(int i=n;i>=1;i--)
+			for(int j=0;j<=n-i+1;j++){
+				if(j==0)las[i][j]=(las[i+1][j]*(1-p[i][mx])%mod+mod)%mod;
+				else las[i][j]=((las[i+1][j-1]*p[i][mx]%mod+las[i+1][j]*(1-p[i][mx])%mod)%mod+mod)%mod;
+			}
+		for(int i=1;i<=n;i++)
+			for(int j=n-i;j>=0;j--)
+				las[i][j]=(las[i][j]+las[i][j+1])%mod;
+		for(int i=1;i<=n;i++)
+			for(int j=0;j<i;j++)
+				for(int k=1;k<=4;k++)
+					ans[i]=(ans[i]+pre[i-1][j]*p[i][k]%mod*w[mx][k]%mod*las[i+1][max(0,n/2+1-j-(mx==k))]%mod)%mod;
+	}
+	for(int i=1;i<=n;i++)
+		printf("%lld\n",ans[i]);
 	return 0;
 }
