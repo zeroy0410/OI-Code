@@ -85,6 +85,7 @@ struct YD_tree2{
 			fa.reset(d);
 			return;
 		}
+		down(p);
 		int mid=(fa.l+fa.r)>>1;
 		if(r<=mid)update(l,r,d,p<<1);
 		else if(l>mid)update(l,r,d,p<<1|1);
@@ -98,6 +99,7 @@ struct YD_tree2{
 			fa.resetp(d);
 			return;
 		}
+		down(p);
 		int mid=(fa.l+fa.r)>>1;
 		if(r<=mid)updatep(l,r,d,p<<1);
 		else if(l>mid)updatep(l,r,d,p<<1|1);
@@ -110,7 +112,7 @@ struct YD_tree2{
 	POI query(int x){
 		for(int p=tid[x]>>1;p;p>>=1)stk[++top]=p;
 		while(top)down(stk[top--]);
-		return tree[tid[x]].poi;
+		return tree[tid[x]].mark;
 	}
 	POI queryp(int x){
 		for(int p=tid[x]>>1;p;p>>=1)stk[++top]=p;
