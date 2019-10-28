@@ -4,14 +4,14 @@ using namespace std;
 const int mod=30011;
 int n,m;
 struct Matrix{
-	int a[M][M],n,m;
+	int a[M][M],nn,mm;
 	Matrix(){memset(a,0,sizeof(a));}
-	void resize(int _n,int _m){n=_n;m=_m;}
+	void resize(int _n,int _m){nn=_n;mm=_m;}
 	Matrix operator * (const Matrix& res){
-		Matrix ans;ans.resize(n,res.m);
-		for(int i=1;i<=n;i++)
-			for(int j=1;j<=res.m;j++)
-				for(int k=1;k<=m;k++)
+		Matrix ans;ans.resize(nn,res.mm);
+		for(int i=1;i<=nn;i++)
+			for(int j=1;j<=res.mm;j++)
+				for(int k=1;k<=mm;k++)
 					ans.a[i][j]=(ans.a[i][j]+1LL*a[i][k]*res.a[k][j]%mod)%mod;
 		return ans;
 	}
@@ -37,10 +37,9 @@ int main(){
 			if(i>1)trans.a[id(i-1,f)][id(i,!f)]=1;
 			if(i<n)trans.a[id(i+1,f)][id(i,!f)]=1;
 		}
-	st.resize(n,1);
-	st.a[id(1,1)][1]=1;
+	st.resize(1,2*n);
+	st.a[1][id(1,1)]=1;
 	st=st*qkpow(trans,m-1);
-	cout<<st.a[id(1,1)][1]<<endl;
-	printf("%d\n",st.a[id(n,m&1)][1]);
+	printf("%d\n",st.a[1][id(n,m&1)]);
 	return 0;
 }
