@@ -37,7 +37,6 @@ int main(){
     for(i=1;i<=n;i++){
         if(!vis[i]){
             mini=n,maxi=1,dfs(i);
-			cout<<mini<<' '<<maxi<<endl;
             v.push_back({mini,maxi,0});
         }
     }
