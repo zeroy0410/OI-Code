@@ -56,11 +56,12 @@ void Init(){
 	}
 }
 struct P100{
+	int dp[M][M];
 	void dfs(int x,int f){
 		for(int i=h[x];i;i=G[i].nxt){
 			int u=G[i].to;
 			if(u==f)continue;
-			
+
 		}
 	}
 	void solve(){
