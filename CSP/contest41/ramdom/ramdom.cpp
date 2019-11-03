@@ -46,20 +46,36 @@ struct P20{
 		printf("%d\n",dp[base]);
 	}
 }p20;
-//struct P60{
-//	int dp[M][M];
-//	void solve(){
-//		
-//	}
-//}p60;
+LL C[M][M];
+void Init(){
+	C[0][0]=1;
+	for(int i=1;i<M;i++){
+		C[i][0]=1;
+		for(int j=1;j<=i;j++)
+			C[i][j]=(C[i-1][j]+C[i-1][j-1])%mod;
+	}
+}
+struct P100{
+	void dfs(int x,int f){
+		for(int i=h[x];i;i=G[i].nxt){
+			int u=G[i].to;
+			if(u==f)continue;
+			
+		}
+	}
+	void solve(){
+
+	}
+}p100;
 int main(){
-	freopen("ramdom.in","r",stdin);
-	freopen("ramdom.out","w",stdout);
+//	freopen("ramdom.in","r",stdin);
+//	freopen("ramdom.out","w",stdout);
+	Init();
 	scanf("%d%d",&n,&K);
 	for(int i=1,a,b;i<n;i++){
 		scanf("%d%d",&a,&b);
 		Add(a,b);
 	}
-	p20.solve();
+	p100.solve();
 	return 0;
 }

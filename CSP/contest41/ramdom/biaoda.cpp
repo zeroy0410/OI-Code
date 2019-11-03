@@ -1,81 +1,73 @@
 #include<bits/stdc++.h>
-#define M 5005
-#define LL long long
 using namespace std;
-const int mod=998244353;
-int n,K;
-struct edge{
-	int to,fr;
-}E[M<<1];
-int lst[M],tote;
-void addedge(int a,int b){
-	E[++tote]=(edge){b,lst[a]};
-	lst[a]=tote;
+#define reg register
+typedef long long ll;
+#define rep(i,a,b) for(reg int i=a,i##end=b;i<=i##end;++i)
+#define drep(i,a,b) for(reg int i=a,i##end=b;i>=i##end;--i)
+char IO;
+int rd(){
+    int s=0,f=0;
+    while(!isdigit(IO=getchar())) if(IO=='-') f=1;
+    do s=(s<<1)+(s<<3)+(IO^'0');
+    while(isdigit(IO=getchar()));
+    return f?-s:s;
 }
-LL Pow(LL x,int y){
-	LL res=1;
-	for(;y;y>>=1,x=x*x%mod)if(y&1)res=res*x%mod;
-	return res;
+const int N=5010,P=998244353;
+bool be;
+int n,m;
+struct Edge{
+    int to,nxt;
+} e[N<<1];
+int head[N],ecnt;
+void AddEdge(int u,int v) {
+    e[++ecnt]=(Edge){v,head[u]};
+    head[u]=ecnt;
 }
-namespace P0{
-	LL fac[M],inv[M];
-	LL Com(int a,int b){
-		if(b<0||a<0||a<b)return 0;
-		return fac[a]*inv[a-b]%mod*inv[b]%mod;
-	}
-	void Add(LL &x,LL y){if((x+=y)>=mod)x-=mod;}
-	LL dp[M][M],DP[M][M];
-	int sz[M];
-	void dfs(int v,int f){
-		DP[0][0]=1;
-		int son=0;
-		for(int i=lst[v];i;i=E[i].fr){
-			int u=E[i].to;
-			if(u==f)continue;
-			dfs(u,v);
-			sz[v]+=sz[u];
-			for(int a=0;a<=sz[v];a++)
-				for(int q=0,ed=min(a,sz[u]);q<=ed;q++)
-					Add(DP[u][a],dp[u][q]*Com(a,q)%mod*DP[son][a-q]%mod*Com(sz[v]-a,sz[u]-q)%mod);
-			son=u;
-		}
-		sz[v]++;
-		for(int i=0;i<=sz[v];i++){
-			dp[v][i]=DP[son][i]*(sz[v]-i)%mod;//不选根 
-			if(i){
-				Add(DP[son][i],DP[son][i-1]);
-				Add(dp[v][i],DP[son][i-1]*K%mod);//选根 
-			}
-		}
-	}
-	void solve(){
-		fac[0]=1;
-		for(int i=1;i<=n;i++)fac[i]=fac[i-1]*i%mod;
-		inv[n]=Pow(fac[n],mod-2);
-		for(int i=n;i;i--)inv[i-1]=inv[i]*i%mod;
-		dfs(1,0);
-		cout<<dp[1][n]<<endl;
-	}
+#define erep(u,i) for(int i=head[u];i;i=e[i].nxt) 
+ll Inv[N],fac[N];
+inline ll C(int n,int m) {
+    if(n<m||n<0||m<0) return 0;
+    return fac[n]*Inv[m]%P*Inv[n-m]%P;
 }
-namespace Pcha{
-	void solve(){
-		LL ans=1;
-		for(int i=1;i<=n;i++)ans=ans*(i-1+K)%mod;
-		cout<<ans<<endl;
-	}
+int sz[N];
+ll dp[N][N],tmp[N];
+void dfs(int u,int f) {
+    sz[u]=0;
+    dp[u][0]=1;
+    erep(u,i) {
+        int v=e[i].to;
+        if(v==f) continue;
+        dfs(v,u);
+        rep(j,0,sz[u]) tmp[j]=dp[u][j],dp[u][j]=0;
+        rep(j,0,sz[u]) 
+            rep(k,0,sz[v]) 
+                dp[u][j+k]=(dp[u][j+k]+tmp[j]*dp[v][k]%P*C(j+k,k)%P*C(sz[u]-j+sz[v]-k,sz[u]-j))%P; 
+                //合并时注意要乘上组合数
+        sz[u]+=sz[v]; 
+    }
+    rep(j,0,sz[u]) tmp[j]=dp[u][j],dp[u][j]=0;
+    rep(j,0,sz[u]) dp[u][j+1]=tmp[j]*(j+1)%P; // 分离 1
+    drep(j,sz[u],1) tmp[j-1]=(tmp[j-1]+tmp[j])%P;
+    rep(j,0,sz[u]) dp[u][j]=(dp[u][j]+tmp[j]*m)%P;  // 分离2，前缀和即可
+    sz[u]++;
 }
+bool ed;
 int main(){
-	freopen("random.in","r",stdin);
-	freopen("random.out","w",stdout);
-	scanf("%d%d",&n,&K);
-	bool cha=1;
-	for(int i=1,a,b;i<n;i++){
-		scanf("%d%d",&a,&b);
-		if(a+1!=b)cha=0;
-		addedge(a,b);
-		addedge(b,a);
-	}
-	if(cha)Pcha::solve();
-	else P0::solve();
-	return 0;
+    freopen("random.in","r",stdin),freopen("random.out","w",stdout);
+    n=rd(),m=rd();
+    fac[0]=Inv[0]=fac[1]=Inv[1]=1;
+    rep(i,2,n) {
+        fac[i]=fac[i-1]*i%P;
+        Inv[i]=(P-P/i)*Inv[P%i]%P;
+    }
+    rep(i,2,n) Inv[i]=Inv[i-1]*Inv[i]%P;
+    rep(i,2,n) {
+        int u=rd(),v=rd();
+        AddEdge(u,v);
+        AddEdge(v,u);
+    }
+    dfs(1,0);
+    printf("%lld\n",dp[1][0]);
+    fclose(stdin),fclose(stdout);
+    return 0;
 }
