@@ -106,7 +106,6 @@ int main(){
 				res.a[0][0]=res.a[1][1]=0;
 				res.a[1][0]=res.a[0][1]=1e13;
 			}
-//			cout<<res.a[0][1]<<endl;
 			LL tmp[3];
 			tmp[0]=g[x][0]-f[y][1];
 			tmp[1]=g[x][1]-min(f[y][0],f[y][1]);
