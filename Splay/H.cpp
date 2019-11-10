@@ -130,8 +130,6 @@ int main(){
 		}
 		else if(rd[0]=='P')cur--;
 		else if(rd[0]=='N')cur++;
-//		Tr.Print(Tr.rt);
-//		puts("");
 	}
 	return 0;
 }
