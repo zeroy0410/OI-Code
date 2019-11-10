@@ -1,8 +1,8 @@
 #include<bits/stdc++.h>
-#define M 500005
+#define M 4000005
 #define LL long long
 using namespace std;
-int n,m,h[M],tt,aa[M],bb[M],tot,mk[M],fe[M];
+int n,m,h[M],tt=1,aa[M],bb[M],tot,mk[M],fe[M];
 struct edge{
 	int nxt,to;
 }G[M<<2];
@@ -32,7 +32,7 @@ void dfs_Init(int x,int f){//mark loop
 		mk[fe[x]^1]=1;
 	}
 }
-int dp[M][2],g[M][2];
+LL dp[M][2],g[M][2];
 void dfs(int x,int f){
 	dp[x][0]=1;
 	for(int i=h[x];i;i=G[i].nxt){
@@ -47,6 +47,7 @@ void dfs(int x,int f){
 		else dp[x][1]+=dp[u][0];
 	}
 }
+bool rt[M];
 void redfs(int x,int f){
 	for(int i=h[x];i;i=G[i].nxt){
 		int u=G[i].to;
@@ -57,7 +58,7 @@ void redfs(int x,int f){
 				g[x][1]+=g[f][1]+dp[f][1]-dp[x][1];
 			}
 		}
-		else if(dfn[x]<dfn[u])g[x][1]+=dp[u][0]+g[i][0];
+		else if(dfn[u]<dfn[x])g[x][1]+=dp[u][0]+g[u][0];
 	}
 	for(int i=h[x];i;i=G[i].nxt){
 		int u=G[i].to;
@@ -76,6 +77,7 @@ int main(){
 	}
 	for(int i=1;i<=n;i++)
 		if(!dfn[i]){
+			rt[i]=1;
 			dfs_Init(i,0);
 			dfs(i,0);
 			redfs(i,0);
@@ -84,7 +86,7 @@ int main(){
 		int x=aa[i],y=bb[i];
 		if(dfn[x]>dfn[y])swap(x,y);
 		LL ans=0;
-		if(mk[i*2-1])ans=(g[x][0]+dp[x][0])*dp[y][0];
+		if(mk[i*2])ans=(g[x][0]+dp[x][0])*dp[y][0];
 		else {
 			ans=(g[x][0]+dp[x][0]-dp[y][0])*(dp[y][0]+dp[y][1]);
 			ans+=(g[x][1]+dp[x][1]-dp[y][1])*dp[y][0];
