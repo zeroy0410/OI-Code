@@ -1,46 +1,40 @@
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <ctime>
-const int N = 10005;
-int n, x[N], y[N], w[N];
-double ansx, ansy, dis;
-double Rand() { return (double)rand() / RAND_MAX; }
-double calc(double xx, double yy) {
-	double res = 0;
-	for (int i = 1; i <= n; ++i) {
-		double dx = x[i] - xx, dy = y[i] - yy;
-		res += sqrt(dx * dx + dy * dy) * w[i];
+#include<bits/stdc++.h>
+#define M 1005
+using namespace std;
+const double eps=1e-15;
+int n;
+struct node{ double x,y,w; }A[M];
+double ansx,ansy;
+double calc(double x,double y){
+	double res=0;
+	for(int i=1;i<=n;i++){
+		double tx=x-A[i].x;
+		double ty=y-A[i].y;
+		res+=sqrt(tx*tx+ty*ty)*A[i].w;
 	}
-	if (res < dis) dis = res, ansx = xx, ansy = yy;
 	return res;
 }
-void simulateAnneal() {
-	double t = 100000;
-	double nowx = ansx, nowy = ansy;
-	while (t > 0.001) {
-		double nxtx = nowx + t * (Rand() * 2 - 1);
-		double nxty = nowy + t * (Rand() * 2 - 1);
-		double delta = calc(nxtx, nxty) - calc(nowx, nowy);
-		if (exp(-delta / t) > Rand()) nowx = nxtx, nowy = nxty;
-		t *= 0.97;
-	}
-	for (int i = 1; i <= 1000; ++i) {
-		double nxtx = ansx + t * (Rand() * 2 - 1);
-		double nxty = ansy + t * (Rand() * 2 - 1);
-		calc(nxtx, nxty);
+void SA(){
+	double T=100;
+	while(T>eps){
+		double nowx=ansx+(rand()*2-RAND_MAX)*T;
+		double nowy=ansy+(rand()*2-RAND_MAX)*T;
+		double cj=calc(nowx,nowy)-calc(ansx,ansy);
+		if(cj<0)ansx=nowx,ansy=nowy;
+		else if(exp(-cj/T)*RAND_MAX>rand())ansx=nowx,ansy=nowy;
+		T*=0.998;
 	}
 }
-int main() {
-	srand(time(0));
-	scanf("%d", &n);
-	for (int i = 1; i <= n; ++i) {
-		scanf("%d%d%d", &x[i], &y[i], &w[i]);
-		ansx += x[i], ansy += y[i];
+int main(){
+	srand(time(NULL));
+	scanf("%d",&n);
+	for(int i=1;i<=n;i++){
+		scanf("%lf%lf%lf",&A[i].x,&A[i].y,&A[i].w);
+		ansx+=A[i].x;ansy+=A[i].y;
 	}
-	ansx /= n, ansy /= n, dis = calc(ansx, ansy);
-	simulateAnneal();
-	printf("%.3lf %.3lf\n", ansx, ansy);
+	ansx/=1.0*n;ansy/=1.0*n;
+	SA(); SA(); SA(); SA();
+	SA(); SA(); 
+	printf("%.3lf %.3lf\n",ansx,ansy);
 	return 0;
 }
-
