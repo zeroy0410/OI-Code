@@ -84,12 +84,8 @@ const int S=70;
 int pos[17][S+1][100005]; 
 bool cur2;
 int main(){
-//	double Sz=&cur1-&cur2;
-//	cout<<Sz/1024/1024<<endl;
-//	freopen("data.in","r",stdin);
-//	freopen("my.out","w",stdout);
-	freopen("travel.in","r",stdin);
-	freopen("travel.out","w",stdout);
+//	freopen("travel.in","r",stdin);
+//	freopen("travel.out","w",stdout);
 	rd(n);
 	for(int i=1,x,y,z;i<n;i++){
 		rd(x);rd(y);rd(z);
@@ -154,8 +150,6 @@ int main(){
 		}else if(tmp>p)
 			ans+=2;
 		print(ans);putchar('\n');
-//		printf("%d\n",ans);
 	}
 	return 0;
 }
-
