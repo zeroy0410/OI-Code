@@ -61,6 +61,7 @@ int main(){
             if(fx!=fy){puts("0"); continue;} //不连通意味着不能到达
             rg A=b,B=g[fx],G=gcd(A,B),C=(ll)d[u]+d[v]-w+B; //列出同余方程的系数
             // 同余方程： C + x*A = 0 (mod B)   ->   x*A + y*B = C (mod g[fx])
+			cout<<A<<' '<<B<<' '<<C<<' '<<G<<endl;
             if(C%G){puts("0"); continue;} //方程无解，请参见扩欧的做法
             rg x,y; A/=G; B/=G; C/=G; //请参见扩欧的解方程的步骤
             exgcd(A,B,x,y); x=((ll)x*C%B+B)%B; //解出同余方程
