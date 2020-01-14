@@ -6,6 +6,6 @@ int main(){
 //	freopen("tree.in","r",stdin);
 //	freopen("tree.out","w",stdout);
 	scanf("%d",&n);
-
+	
 	return 0;
 }

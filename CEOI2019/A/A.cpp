@@ -17,7 +17,7 @@ void Solve(){
 	dp[0]=1;
 	for(int i=1;i<1<<n;i++)
 		for(int j=1;j<=m;j++)
-			if(have(i,U[j]) and have(i,V[j])){
+			if(have(i,U[j])&&have(i,V[j])){
 				mark[i]=true;break;
 			}
 	for(int i=1;i<1<<n;i++)

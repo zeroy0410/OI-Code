@@ -3,7 +3,7 @@
 using namespace std;
 const int mod=998244353;
 const int P=105;
-int n,m,A[2005][2005];
+int n,m,A[105][2005];
 LL qkpow(LL a,LL b){
 	LL res=1;
 	while(b){
@@ -13,8 +13,8 @@ LL qkpow(LL a,LL b){
 	}
 	return res;
 }
-LL ans=1,res[2005];
-LL dp[2005][2005];
+LL ans=1,res[105];
+LL dp[105][255];
 void Add(LL &x,LL y){
 	x+=y;
 	if(x>=mod)x-=mod;
