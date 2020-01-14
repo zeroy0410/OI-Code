@@ -4,7 +4,7 @@
 using namespace std;
 int T,n,h[M],tt=1;
 struct BIT{
-	int C[M<<1];
+	LL C[M<<1];
 	void clear(){ memset(C,0,sizeof(C)); }
 	void add(int x,int d){
 		x++;
@@ -13,9 +13,9 @@ struct BIT{
 			x+=(x&-x);
 		}
 	}
-	int sum(int x){
+	LL sum(int x){
 		if(x<=0)return 0;
-		x++;int res=0;
+		x++;LL res=0;
 		while(x){
 			res+=C[x];
 			x-=(x&-x);
@@ -46,21 +46,23 @@ void dfs_Init(int x,int f){
 }
 void dfs_pre(int x,int f){
 	if(x!=rt)Tr.add(sz[x],1);
-	int pr=Tr.sum(n-2*sz[son[x]])-Tr.sum(n-2*sz[x]);
-	if(L[x]>L[su]&&L[x]<=R[su])cnt[rt]+=(sz[x]<=n-2*sz[sv]);
-	else cnt[rt]+=(sz[x]<=n-2*sz[su]);
+	int pr=Tr.sum(n-2*sz[son[x]])-Tr.sum(n-2*sz[x]-1);
+	if(x!=rt){
+		if(L[x]>=L[su]&&L[x]<=R[su])cnt[rt]+=(sz[x]<=n-2*sz[sv]);
+		else cnt[rt]+=(sz[x]<=n-2*sz[su]);
+	}
 	for(int i=h[x];i;i=G[i].nxt){
 		int u=G[i].to;
 		if(u==f)continue;
 		dfs_pre(u,x);
 	}
-	int nt=Tr.sum(n-2*sz[son[x]])-Tr.sum(n-2*sz[x]);
+	int nt=Tr.sum(n-2*sz[son[x]])-Tr.sum(n-2*sz[x]-1);
 	sdd[x]=nt-pr;
 }
 void dfs_solve(int x,int f){
 	if(x!=rt){
 		Tr.add(sz[x],-1);Tr.add(n-sz[x],1);
-		cnt[x]=Tr.sum(n-2*sz[son[x]])-Tr.sum(n-2*sz[x])-sdd[x];
+		cnt[x]=Tr.sum(n-2*sz[son[x]])-Tr.sum(n-2*sz[x]-1)-sdd[x];
 	}
 	for(int i=h[x];i;i=G[i].nxt){
 		int u=G[i].to;
@@ -70,11 +72,12 @@ void dfs_solve(int x,int f){
 	if(x!=rt){ Tr.add(sz[x],1);Tr.add(n-sz[x],-1);}
 }
 int main(){
-//	freopen("centroid.in", "r", stdin);
-//	freopen("centroid.out", "w", stdout);
+	freopen("centroid.in", "r", stdin);
+	freopen("centroid.out", "w", stdout);
 	scanf("%d",&T);
 	while(T--){
 		memset(h,0,sizeof(h));tt=1;
+		memset(cnt,0,sizeof(cnt));
 		Tr.clear();rt=su=sv=0;
 		scanf("%d",&n);
 		for(int i=1,a,b;i<n;i++){
@@ -89,9 +92,11 @@ int main(){
 		}
 		dfs_pre(rt,0);dfs_solve(rt,0);
 		LL ans=0;
+//		for(int i=1;i<=n;i++)
+//			cout<<"haha: "<<i<<' '<<cnt[i]<<endl;
 		for(int i=1;i<=n;i++)
 			ans+=1LL*cnt[i]*i;
-		printf("%lld",ans);
+		printf("%lld\n",ans);
 	}
 	return 0;
 }
