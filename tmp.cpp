@@ -1,96 +1,66 @@
 #include<bits/stdc++.h>
+#define M 100005
 using namespace std;
-const int M=1e5+5,S=70;
-int n,m;
-int h[M],nx[M<<1],to[M<<1],v[M<<1],tot;
-void add(int a,int b,int c){
-	to[++tot]=b;v[tot]=c;
-	nx[tot]=h[a];h[a]=tot;
-}
-int fa[M][18],dep[M],dis[M];
-void dfs(int x){
-	for(int i=1;i<18;i++)fa[x][i]=fa[fa[x][i-1]][i-1];
-	for(int i=h[x];i;i=nx[i]){
-		int y=to[i];
-		if(y==fa[x][0])continue;
-		fa[y][0]=x,dep[y]=dep[x]+1,dis[y]=dis[x]+v[i];
-		dfs(y);
+const int mod=998244353;
+const int inv2=499122177;
+int n,m,pw=1;
+struct YD_tree{
+	struct node{
+		int l,r,f,g,sum,mul,ans;
+	}tree[M<<3];
+	#define fa tree[p]
+	#define lson tree[p<<1]
+	#define rson tree[p<<1|1]
+	void up(int p){ fa.ans=((lson.ans+rson.ans)%mod+fa.f)%mod; }
+	void downtag(int ad,int mu,int p){
+		fa.g=(1LL*fa.g*mu+ad)%mod;
+		fa.mul=1LL*fa.mul*mu%mod;
+		fa.sum=(1LL*fa.sum*mu%mod+ad)%mod;
 	}
-}
-int lca(int a,int b){
-	if(dep[a]<dep[b])swap(a,b);
-	int d=dep[a]-dep[b];
-	for(int i=0;i<18;i++)
-		if(d&(1<<i))a=fa[a][i];
-	if(a==b)return a;
-	for(int i=17;i>=0;i--)
-		if(fa[a][i]!=fa[b][i])
-			a=fa[a][i],b=fa[b][i];
-	return fa[a][0];
-}
-struct P1{
-	int solve(int x,int y,int p){
-		int l=lca(x,y),ans=0;
-		while(dis[x]-dis[l]>=p){
-			int d=dis[x];
-			for(int i=17;i>=0;i--)
-				if(fa[x][i]&&d-dis[fa[x][i]]<=p)x=fa[x][i];
-			ans++;
-		}
-		while(dis[y]-dis[l]>=p){
-			int d=dis[y];
-			for(int i=17;i>=0;i--)
-				if(fa[y][i]&&d-dis[fa[y][i]]<=p)y=fa[y][i];
-			ans++;
-		}
-		return ans+(dis[x]+dis[y]-(dis[l]<<1)+p-1)/p;
+	void down(int p){
+		if(fa.mul==1&&fa.sum==0)return;
+		downtag(fa.sum,fa.mul,p<<1);
+		downtag(fa.sum,fa.mul,p<<1|1);
+		fa.mul=1;fa.sum=0;
 	}
-}p1;
-struct P2{
-	int fa[S+1][M][18];
-	void init(){
-		for(int p=2;p<=S;p++){
-			int (*Fa)[18]=fa[p];
-			for(int i=1;i<=n;i++){
-				int d=dis[i],x=i;
-				for(int j=17;j>=0;j--)
-					if(::fa[x][j]&&d-dis[::fa[x][j]]<=p)x=::fa[x][j];
-				Fa[i][0]=x;
-			}
-		}
-		for(int p=2;p<=S;p++){
-			int (*Fa)[18]=fa[p];
-			for(int j=1;j<18;j++)
-				for(int i=1;i<=n;i++){
-					Fa[i][j]=Fa[Fa[i][j-1]][j-1];
-				}
-		}
+	void build(int l,int r,int p){
+		fa.l=l;fa.r=r;fa.sum=fa.f=fa.g=fa.ans=0;fa.mul=1;
+		if(l==r)return;
+		int mid=(l+r)>>1;
+		build(l,mid,p<<1);
+		build(mid+1,r,p<<1|1);
 	}
-	int solve(int x,int y,int p){
-		int l=lca(x,y),ans=0,(*Fa)[18]=fa[p];
-		for(int i=17;i>=0;i--)
-			if(Fa[x][i]&&dep[Fa[x][i]]>dep[l])ans+=1<<i,x=Fa[x][i];
-		for(int i=17;i>=0;i--)
-			if(Fa[y][i]&&dep[Fa[y][i]]>dep[l])ans+=1<<i,y=Fa[y][i];
-		return ans+(dis[x]+dis[y]-(dis[l]<<1)+p-1)/p;
-	}	
-}p2;
+	void reset(int p){ fa.f=1LL*(fa.f+fa.g)*inv2%mod;up(p); }
+	void update(int l,int r,int p){
+		if(fa.l==l&&fa.r==r){
+			fa.f=1LL*inv2*(fa.f+1)%mod;
+			downtag(inv2,inv2,p);up(p);
+			return;
+		}
+		int mid=(fa.l+fa.r)>>1;down(p);
+		fa.f=1LL*fa.f*inv2%mod;
+		fa.g=1LL*fa.g*inv2%mod;
+		if(r<=mid){update(l,r,p<<1);reset(p<<1|1);}
+		else if(l>mid){update(l,r,p<<1|1);reset(p<<1);}
+		else {
+			update(l,mid,p<<1);
+			update(mid+1,r,p<<1|1);
+		}
+		up(p);
+	}
+}Tr;
 int main(){
-	scanf("%d",&n);
-	for(int a,b,c,i=1;i<n;i++){
-		scanf("%d%d%d",&a,&b,&c);
-		add(a,b,c);add(b,a,c);
-	}
-	dfs(1);
-	p2.init();
-	scanf("%d",&m);
+	scanf("%d%d",&n,&m);
+	Tr.build(1,n,1);
 	while(m--){
-		int a,b,p;
-		scanf("%d%d%d",&a,&b,&p);
-		if(p>S)printf("%d\n",p1.solve(a,b,p));
-		else printf("%d\n",p2.solve(a,b,p));
+		int op,l,r;
+		scanf("%d",&op);
+		if(op==1){
+			scanf("%d%d",&l,&r);
+			Tr.update(l,r,1);
+			pw=(pw+pw)%mod;
+		}
+		else printf("%lld\n",1LL*Tr.tree[1].ans*pw%mod);
 	}
 	return 0;
 }
-
-
